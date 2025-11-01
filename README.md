@@ -1,6 +1,3 @@
-# frethan-phase2
-Frethan Technology Web Application (ICT302 Phase 2)
-
 # 🧱 Frethan Project – ICT302 Phase 2
 A web platform for supplier verification, RFQ management, and procurement transparency.
 
