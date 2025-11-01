@@ -137,3 +137,41 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# ────────────────────────────────────────────────
+# Frethan Project (Phase 2) – Custom Additions
+# ────────────────────────────────────────────────
+
+# Prisma
+prisma/dev.db
+prisma/migrations/
+prisma/generated/
+
+# Environment variables
+.env.local
+.env.production
+.env.development
+.env.test
+!.env.example   # keep the sample env file
+
+# Frontend build outputs
+frontend/dist/
+frontend/node_modules/
+
+# Backend build outputs
+backend/dist/
+backend/node_modules/
+
+# Database backups / temp files
+database/backups/
+database/temp/
+
+# Logs and temp data
+*.tmp
+*.swp
+logs/
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
