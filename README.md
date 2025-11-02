@@ -18,12 +18,39 @@ A web platform for supplier verification, RFQ management, and procurement transp
 - ⚪ UI/UX Designer: Rupak GHIMIRE (12300071@students.koi.edu.au)
 - 🔴 QA/Tester
 
+## 🔗 Useful Links
+- Client: Frethan Technology (Brisbane)
+- Supervisor: Mr. Vito Wu (project1@chinadirectsourcing.com.au)
+
 ## 📂 Folder Structure
 - `/frontend` – UI implementation (React)
 - `/backend` – API implementation (Express)
 - `/docs` – Documentation & Reports
 - `/database` – Prisma schema, migrations
 
-## 🔗 Useful Links
-- Client: Frethan Technology (Brisbane)
-- Supervisor: Mr. Vito Wu (project1@chinadirectsourcing.com.au)
+## 🌿 Branch Structure (Development Workflow)
+
+We use a **three-branch structure** to maintain clean and collaborative development.
+
+|   Branch   |   Purpose   |   Permissions   |
+|---------|----------|-------------|
+| **`main`** | Final, production-ready code. Used for submission and deployment. | 🔒 Only PM merges here. |
+| **`dev`** | Shared development branch where all new features are tested. | ✅ All developers can merge their work here. |
+| **`feature-*`** | Individual branches for specific tasks (e.g., `feature-login`, `feature-rfq-api`). | 🧩 Created and managed by each developer. |
+
+## 🧩 Workflow Example
+
+```bash
+# 1. Switch to dev branch
+git checkout dev
+git pull origin dev
+
+# 2. Create a new feature branch
+git checkout -b feature-login
+
+# 3. After coding, push your branch
+git add .
+git commit -m "Add login functionality"
+git push origin feature-login
+
+# 4. Open a Pull Request (PR) from feature-login → dev
