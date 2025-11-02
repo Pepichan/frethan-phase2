@@ -8,12 +8,12 @@ A web platform for supplier verification, RFQ management, and procurement transp
 - Hosting: Vercel (Frontend), Render (Backend), Neon (DB)
 
 ## 👥 Team Members
-- Project Manager: Rie Hagiwara (12203845@students.koi.edu.au)
-- Frontend Developer
-- Backend Developer
-- Database Engineer
-- UI/UX Designer
-- QA/Tester
+- 🩵 Project Manager: Rie Hagiwara (12203845@students.koi.edu.au)
+- 🟣 Frontend Developer
+- 🟡 Backend Developer
+- 🟢 Database Engineer
+- ⚪ UI/UX Designer
+- 🔴 QA/Tester
 
 ## 📂 Folder Structure
 - `/frontend` – UI implementation (React)
@@ -23,5 +23,4 @@ A web platform for supplier verification, RFQ management, and procurement transp
 
 ## 🔗 Useful Links
 - Client: Frethan Technology (Brisbane)
-- Supervisor: Mr. Vito Wu
-- GitHub Repo: [link here]
+- Supervisor: Mr. Vito Wu (project1@chinadirectsourcing.com.au)
