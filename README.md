@@ -11,11 +11,11 @@ A web platform for supplier verification, RFQ management, and procurement transp
 - Hosting: Vercel (Frontend), Render (Backend), Neon (DB)
 
 ## 👥 Team Members
-- 🩵 Project Manager: Rie Hagiwara (12203845@students.koi.edu.au)
-- 🟣 Frontend Developer
-- 🟡 Backend Developer
-- 🟢 Database Engineer
-- ⚪ UI/UX Designer
+- 🩵 Project Manager: Rie HAGIWARA (12203845@students.koi.edu.au)
+- 🟣 Frontend Developer: Deepika THAPA KSHETRI (12301540@students.koi.edu.au)
+- 🟡 Backend Developer: Anish DAHAL (20027258@students.koi.edu.au)
+- 🟢 Database Engineer: Dipesh NEPAL (20027131@students.koi.edu.au)
+- ⚪ UI/UX Designer: Rupak GHIMIRE (12300071@students.koi.edu.au)
 - 🔴 QA/Tester
 
 ## 📂 Folder Structure
