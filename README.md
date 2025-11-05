@@ -38,19 +38,46 @@ We use a **three-branch structure** to maintain clean and collaborative developm
 | **`dev`** | Shared development branch where all new features are tested. | ✅ All developers can merge their work here. |
 | **`feature-*`** | Individual branches for specific tasks (e.g., `feature-login`, `feature-rfq-api`). | 🧩 Created and managed by each developer. |
 
-## 🧩 Workflow Example
+## 🌿 Branch Naming Rules
 
-```bash
-# 1. Switch to dev branch
-git checkout dev
-git pull origin dev
+To maintain a clear and consistent workflow, all team members must create branches following the role-based naming convention below.
+This ensures that each branch reflects the contributor’s responsibility and task type.
 
-# 2. Create a new feature branch
-git checkout -b feature-login
+## 🧭 Naming Format
+- feature/role-taskname
+- Example: feature/frontend-login-page, feature/backend-apiauth
 
-# 3. After coding, push your branch
-git add .
-git commit -m "Add login functionality"
-git push origin feature-login
+## 🪜 Branch Workflow
 
-# 4. Open a Pull Request (PR) from feature-login → dev
+1. Pull the latest dev branch:
+   ```
+   git checkout dev
+   git pull origin dev
+   ```
+
+2. Create a new branch based on your role:
+   ```
+   git checkout -b feature/frontend-login-page
+   ```
+
+3. Commit and push your changes:
+   ```
+   git add .
+   git commit -m "Add login page UI"
+   git push -u origin feature/frontend-login-page
+   ```
+
+4. Create a Pull Request (PR) on GitHub:
+   ```
+   - Base branch: dev
+   - Compare branch: your feature branch
+   - Provide a short and clear PR title and description.
+   ```
+
+## ⚠️ Important Notes
+- Do not push directly to the main branch.
+All changes must go through dev and be tested before merging into main.
+- Use lowercase letters and hyphens (-) for all branch names.
+Example: feature/backend-api-auth
+- Create one branch per feature or weekly task.
+After merging into dev, old branches can be safely deleted.
