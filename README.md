@@ -8,6 +8,7 @@ A web platform for supplier verification, RFQ management, and procurement transp
 - 🟢 Database: PostgreSQL + Prisma + pgAdmin
 - ⚪ UI/UX: Figma + Canva
 - 🔴 QA/Tester: Postman + Web browser
+- Smart Contract: Solidity + Hardhat + ethers.js
 - Hosting: Vercel (Frontend), Render (Backend), Neon (DB)
 
 ## 👥 Team Members
