@@ -17,7 +17,7 @@ A web platform for supplier verification, RFQ management, and procurement transp
 - 🟡 Backend Developer: Anish DAHAL (20027258@students.koi.edu.au)
 - 🟢 Database Engineer: Dipesh NEPAL (20027131@students.koi.edu.au)
 - ⚪ UI/UX Designer: Rupak GHIMIRE (12300071@students.koi.edu.au)
-- 🔴 QA/Tester
+- 🔴 QA & Blockchain Support: Nischal BHANDARI (20028654@students.koi.edu.au)
 
 ## 🔗 Useful Links
 - Client: Frethan Technology (Brisbane)
