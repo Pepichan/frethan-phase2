@@ -2,17 +2,15 @@ name: Frontend CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ dev ]
   pull_request:
-    branches: [ main ]
+    branches: [ dev ]
 
 jobs:
   placeholder:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Frontend placeholder CI
-        run: echo "Frontend CI is correctly set up. Project code will be added in Week 2."
+        run: echo "Frontend CI is correctly set up."
