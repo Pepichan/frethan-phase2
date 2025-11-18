@@ -39,6 +39,14 @@ We use a **three-branch structure** to maintain clean and collaborative developm
 | **`dev`** | Shared development branch where all new features are tested. | ✅ All developers can merge their work here. |
 | **`feature-*`** | Individual branches for specific tasks (e.g., `feature-login`, `feature-rfq-api`). | 🧩 Created and managed by each developer. |
 
+## ⚠️ Important Notes
+- Do not push directly to the main branch.
+All changes must go through dev and be tested before merging into main.
+- Use lowercase letters and hyphens (-) for all branch names.
+Example: feature/backend-api-auth
+- Create one branch per feature or weekly task.
+After merging into dev, old branches can be safely deleted.
+
 ## 🌿 Branch Naming Rules
 
 To maintain a clear and consistent workflow, all team members must create branches following the role-based naming convention below.
@@ -74,11 +82,3 @@ This ensures that each branch reflects the contributor’s responsibility and ta
    - Compare branch: your feature branch
    - Provide a short and clear PR title and description.
    ```
-
-## ⚠️ Important Notes
-- Do not push directly to the main branch.
-All changes must go through dev and be tested before merging into main.
-- Use lowercase letters and hyphens (-) for all branch names.
-Example: feature/backend-api-auth
-- Create one branch per feature or weekly task.
-After merging into dev, old branches can be safely deleted.
