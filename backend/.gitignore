@@ -1,0 +1,21 @@
+# --- Global ignores ---
+node_modules/
+*.log
+
+# --- Backend ---
+backend/node_modules/
+backend/.env
+backend/prisma/*-generated/
+backend/prisma/.env
+
+# --- Environment files ---
+.env
+*.env
+
+# --- Prisma Client (Generated code) ---
+/src/generated/prisma
+backend/src/generated/prisma
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
