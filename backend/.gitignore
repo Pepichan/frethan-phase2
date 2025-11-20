@@ -1,23 +1,22 @@
-# --- Global ignores ---
+# Backend-specific ignores
+
+# node modules
 node_modules/
-*.log
 
-# --- Backend ---
-backend/node_modules/
-backend/.env
-backend/prisma/*-generated/
-backend/prisma/.env
-
-# --- Environment files ---
+# env files
 .env
 *.env
 
-# --- Prisma Client (Generated code) ---
-/src/generated/prisma
-backend/src/generated/prisma
+# Local Prisma DB (開発用)
+prisma/dev.db
 
-# --- OS junk ---
+# Prisma generated client (もし使うなら)
+prisma/*-generated/
+src/generated/prisma
+
+# logs
+*.log
+
+# OS junk
 .DS_Store
 Thumbs.db
-
-prisma/dev.db
