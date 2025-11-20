@@ -12,10 +12,9 @@ A web platform for supplier verification, RFQ management, and procurement transp
 - Hosting: Vercel (Frontend), Render (Backend), Neon (DB)
 
 ## 👥 Team Members
-- 🩵 Project Manager: Rie HAGIWARA (12203845@students.koi.edu.au)
+- 🩵 Project Manager & 🟢 Database Engineer: Rie HAGIWARA (12203845@students.koi.edu.au)
 - 🟣 Frontend Developer: Deepika THAPA KSHETRI (12301540@students.koi.edu.au)
-- 🟡 Backend Developer: Anish DAHAL (20027258@students.koi.edu.au)
-- 🟢 Database Engineer: Dipesh NEPAL (20027131@students.koi.edu.au)
+- 🟡 Backend Developer: Anish DAHAL (20027258@students.koi.edu.au) & Dipesh NEPAL (20027131@students.koi.edu.au)
 - ⚪ UI/UX Designer: Rupak GHIMIRE (12300071@students.koi.edu.au)
 - 🔴 QA & Blockchain Support: Nischal BHANDARI (20028654@students.koi.edu.au)
 
@@ -37,7 +36,7 @@ We use a **three-branch structure** to maintain clean and collaborative developm
 |---------|----------|-------------|
 | **`main`** | Final, production-ready code. Used for submission and deployment. | 🔒 Only PM merges here. |
 | **`dev`** | Shared development branch where all new features are tested. | ✅ All developers can merge their work here. |
-| **`feature-*`** | Individual branches for specific tasks (e.g., `feature-login`, `feature-rfq-api`). | 🧩 Created and managed by each developer. |
+| **`feature/FRE-**-taskname`** | Individual branches for specific tasks (e.g., `feature/FRE-**-login`, `feature-FRE-**-rfq-api`). | 🧩 Created and managed by each developer. |
 
 ## ⚠️ Important Notes
 - Do not push directly to the main branch.
@@ -47,14 +46,81 @@ Example: feature/backend-api-auth
 - Create one branch per feature or weekly task.
 After merging into dev, old branches can be safely deleted.
 
-## 🌿 Branch Naming Rules
 
-To maintain a clear and consistent workflow, all team members must create branches following the role-based naming convention below.
-This ensures that each branch reflects the contributor’s responsibility and task type.
+---
 
-## 🧭 Naming Format
-- feature/role-taskname
-- Example: feature/frontend-login-page, feature/backend-apiauth
+
+# 🛠 Jira × GitHub Workflow Guide
+
+To keep our project clean, consistent, and fully automated, please follow the rules below.  
+These rules ensure that Jira automation works correctly with GitHub.
+
+## 🔖 1. Always include the Jira Issue ID in your PR title and branch name
+
+This is required for Jira to detect your work and move tasks automatically.
+
+### ✔ Examples
+
+**Branch names**
+- feature/FRE-14-login-ui
+- feature/FRE-21-auth-flow
+
+**Pull Request titles**
+- FRE-14: Add Login UI with Social Buttons
+- FRE-21: Implement OAuth Flow (Google/Facebook)
+- FRE-30: Fix Auth Callback Redirect
+
+> If the PR title or branch name does NOT contain the Jira issue ID,  
+> **automation will not work.**
+
+
+## 🚧 2. When you start work, move the Jira issue to “In Progress”
+
+This helps the PM track real progress and prevents the automatic “no progress” reminder email.
+
+
+## 👀 3. When you create a Pull Request, Jira moves the issue to “In Review” automatically
+
+This works only if the PR includes the correct Jira Issue ID.
+
+
+## ❌ 4. If your PR is declined, fix the issues and submit again
+
+Jira will send you an automatic message.  
+Please review comments, apply fixes, and create a new PR with the **same Jira Issue ID**.
+
+
+## ✅ 5. When your PR is merged, Jira will automatically move the issue to “Done”
+
+No manual updates needed.  
+This ensures consistency and saves time for everyone.
+
+
+## ⏰ 6. Do not leave tasks inactive for more than 3 days
+
+If no progress is detected, Jira sends an automatic reminder email to the assignee.  
+To avoid this:
+- Move the task to **In Progress**
+- Update your branch or PR
+- Leave a comment if you are blocked
+
+
+# 🔗 Jira – GitHub Automation Summary
+
+Our workspace includes the following automations:
+
+### ✔ Move Issue to **Done** when a Pull Request is merged  
+### ✔ Move Issue to **In Review** when a PR is created  
+### ✔ Notify the team if a Pull Request is declined  
+### ✔ Send reminder email when a task has no progress for 3 days  
+
+These rules only work if the Jira Issue ID is correctly used in GitHub.
+
+
+# 🙌 Need help?
+If you're unsure about the workflow, naming, or Jira linking, please contact the PM before creating your Pull Request.
+
+---
 
 ## 🪜 Branch Workflow
 
@@ -66,19 +132,19 @@ This ensures that each branch reflects the contributor’s responsibility and ta
 
 2. Create a new branch based on your role:
    ```
-   git checkout -b feature/frontend-login-page
+   git checkout -b feature/FRE-21-frontend-login-page
    ```
 
 3. Commit and push your changes:
    ```
    git add .
    git commit -m "Add login page UI"
-   git push -u origin feature/frontend-login-page
+   git push -u origin feature/FRE-21-frontend-login-page
    ```
 
 4. Create a Pull Request (PR) on GitHub:
    ```
    - Base branch: dev
    - Compare branch: your feature branch
-   - Provide a short and clear PR title and description.
+   - Provide a short and clear PR title with Jira Issue ID and description.
    ```
