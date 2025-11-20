@@ -19,3 +19,5 @@ backend/src/generated/prisma
 # --- OS junk ---
 .DS_Store
 Thumbs.db
+
+prisma/dev.db
