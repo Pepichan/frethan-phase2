@@ -148,3 +148,4 @@ If you're unsure about the workflow, naming, or Jira linking, please contact the
    - Compare branch: your feature branch
    - Provide a short and clear PR title with Jira Issue ID and description.
    ```
+Add Jira PR sync workflow to dev
