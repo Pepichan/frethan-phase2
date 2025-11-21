@@ -3,12 +3,301 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"              
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+model Role {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  users User[]
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  createdAt DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  roleId       Int
+  firstName    String
+  lastName     String
+  email        String   @unique
+  passwordHash String
+  phone        String?
+  addresses    String?
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+
+  role            Role             @relation(fields: [roleId], references: [id])
+  supplierProfile SupplierProfile?
+
+  rfqs          RFQ[]          @relation("BuyerRFQs")
+  orders        Order[]        @relation("BuyerOrders")
+  payments      Payment[]      @relation("BuyerPayments")
+  goodsReceipts GoodsReceipt[] @relation("ReceiverGoodsReceipts")
+}
+
+model SupplierProfile {
+  id                 Int     @id @default(autoincrement())
+  userId             Int     @unique
+  companyName        String
+  addresses          String?
+  email              String  @unique
+  phone              String?
+  verificationStatus String  @default("pending")
+  ratingAvg          Float?
+
+  user         User                    @relation(fields: [userId], references: [id])
+  products     Product[]
+  quotes       Quote[]
+  orders       Order[]
+  certificates ComplianceCertificate[]
+}
+
+model MaterialCategory {
+  id               Int     @id @default(autoincrement())
+  categoryName     String
+  description      String?
+  parentCategoryId Int?
+
+  parent   MaterialCategory?  @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id])
+  children MaterialCategory[] @relation("CategoryHierarchy")
+
+  products Product[]
+}
+
+model Product {
+  id             Int     @id @default(autoincrement())
+  supplierId     Int
+  categoryId     Int
+  name           String
+  description    String?
+  specifications String?
+  unit           String
+  basePrice      Decimal @db.Decimal(14, 2)
+  currency       String  @default("AUD")
+  leadTimeDays   Int?
+  isActive       Boolean @default(true)
+
+  supplier SupplierProfile  @relation(fields: [supplierId], references: [id])
+  category MaterialCategory @relation(fields: [categoryId], references: [id])
+
+  rfqItems     RFQItem[]
+  orderItems   OrderItem[]
+  certificates ComplianceCertificate[]
+}
+
+model RFQ {
+  id         Int       @id @default(autoincrement())
+  buyerId    Int
+  requiredBy DateTime?
+  notes      String?
+  status     String    @default("draft")
+  createdAt  DateTime  @default(now())
+
+  buyer  User      @relation("BuyerRFQs", fields: [buyerId], references: [id])
+  items  RFQItem[]
+  quotes Quote[]
+}
+
+model RFQItem {
+  id          Int    @id @default(autoincrement())
+  rfqId       Int
+  productId   Int?
+  description String
+  quantity    Float
+  unit        String
+
+  rfq     RFQ      @relation(fields: [rfqId], references: [id])
+  product Product? @relation(fields: [productId], references: [id])
+
+  quoteItems QuoteItem[]
+}
+
+model Quote {
+  id            Int       @id @default(autoincrement())
+  rfqId         Int
+  supplierId    Int
+  totalPrice    Decimal   @db.Decimal(14, 2)
+  currency      String    @default("AUD")
+  validityUntil DateTime?
+  status        String    @default("pending")
+  createdAt     DateTime  @default(now())
+
+  rfq      RFQ             @relation(fields: [rfqId], references: [id])
+  supplier SupplierProfile @relation(fields: [supplierId], references: [id])
+  items    QuoteItem[]
+  orders   Order[]
+}
+
+model QuoteItem {
+  id        Int     @id @default(autoincrement())
+  quoteId   Int
+  rfqItemId Int
+  unitPrice Decimal @db.Decimal(14, 2)
+  quantity  Float
+  subtotal  Decimal @db.Decimal(14, 2)
+
+  quote   Quote   @relation(fields: [quoteId], references: [id])
+  rfqItem RFQItem @relation(fields: [rfqItemId], references: [id])
+}
+
+model Order {
+  id          Int      @id @default(autoincrement())
+  buyerId     Int
+  supplierId  Int
+  quoteId     Int
+  orderDate   DateTime @default(now())
+  status      String   @default("pending")
+  totalAmount Decimal  @db.Decimal(14, 2)
+  currency    String   @default("AUD")
+
+  buyer    User            @relation("BuyerOrders", fields: [buyerId], references: [id])
+  supplier SupplierProfile @relation(fields: [supplierId], references: [id])
+  quote    Quote           @relation(fields: [quoteId], references: [id])
+
+  items         OrderItem[]
+  invoices      Invoice[]
+  goodsReceipts GoodsReceipt[]
+  shipments     Shipment[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Float
+  unitPrice Decimal @db.Decimal(14, 2)
+  lineTotal Decimal @db.Decimal(14, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  goodsReceiptItems GoodsReceiptItem[]
+  invoiceItems      InvoiceItem[]
+}
+
+model GoodsReceipt {
+  id               Int      @id @default(autoincrement())
+  orderId          Int
+  shipmentId       Int?
+  receivedAt       DateTime
+  receivedByUserId Int
+  status           String
+  reference        String?
+  notes            String?
+
+  order      Order     @relation(fields: [orderId], references: [id])
+  shipment   Shipment? @relation(fields: [shipmentId], references: [id])
+  receivedBy User      @relation("ReceiverGoodsReceipts", fields: [receivedByUserId], references: [id])
+
+  items GoodsReceiptItem[]
+}
+
+model GoodsReceiptItem {
+  id             Int     @id @default(autoincrement())
+  goodsReceiptId Int
+  orderItemId    Int
+  receivedQty    Float
+  acceptedQty    Float
+  rejectedQty    Float
+  reasonCode     String?
+
+  goodsReceipt GoodsReceipt @relation(fields: [goodsReceiptId], references: [id])
+  orderItem    OrderItem    @relation(fields: [orderItemId], references: [id])
+}
+
+model Shipment {
+  id               Int       @id @default(autoincrement())
+  orderId          Int
+  trackingNumber   String?
+  carrier          String?
+  estimatedArrival DateTime?
+  status           String
+
+  order         Order            @relation(fields: [orderId], references: [id])
+  updates       ShipmentUpdate[]
+  goodsReceipts GoodsReceipt[]
+}
+
+model ShipmentUpdate {
+  id         Int      @id @default(autoincrement())
+  shipmentId Int
+  status     String
+  location   String?
+  eventTime  DateTime
+  notes      String?
+
+  shipment Shipment @relation(fields: [shipmentId], references: [id])
+}
+
+model Invoice {
+  id            Int       @id @default(autoincrement())
+  orderId       Int
+  invoiceNumber String    @unique
+  issueDate     DateTime
+  dueDate       DateTime?
+  currency      String    @default("AUD")
+  subtotal      Decimal   @db.Decimal(14, 2)
+  taxTotal      Decimal   @db.Decimal(14, 2)
+  total         Decimal   @db.Decimal(14, 2)
+  status        String
+
+  order       Order               @relation(fields: [orderId], references: [id])
+  items       InvoiceItem[]
+  allocations PaymentAllocation[]
+}
+
+model InvoiceItem {
+  id           Int     @id @default(autoincrement())
+  invoiceId    Int
+  orderItemId  Int?
+  description  String?
+  quantity     Float
+  unitPrice    Decimal @db.Decimal(14, 2)
+  taxRate      Float
+  lineSubtotal Decimal @db.Decimal(14, 2)
+  lineTax      Decimal @db.Decimal(14, 2)
+  lineTotal    Decimal @db.Decimal(14, 2)
+
+  invoice   Invoice    @relation(fields: [invoiceId], references: [id])
+  orderItem OrderItem? @relation(fields: [orderItemId], references: [id])
+}
+
+model Payment {
+  id         Int      @id @default(autoincrement())
+  buyerId    Int
+  amount     Decimal  @db.Decimal(14, 2)
+  currency   String   @default("AUD")
+  receivedAt DateTime
+  method     String
+  reference  String?
+  status     String
+
+  buyer       User                @relation("BuyerPayments", fields: [buyerId], references: [id])
+  allocations PaymentAllocation[]
+}
+
+model PaymentAllocation {
+  id              Int      @id @default(autoincrement())
+  paymentId       Int
+  invoiceId       Int
+  amountAllocated Decimal  @db.Decimal(14, 2)
+  createdAt       DateTime @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id])
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+}
+
+model ComplianceCertificate {
+  id                Int       @id @default(autoincrement())
+  certificateNumber String    @unique
+  productId         Int?
+  supplierId        Int?
+  issuedBy          String?
+  issueDate         DateTime?
+  expiryDate        DateTime?
+  blockchainTxId    String?
+  status            String
+
+  product  Product?         @relation(fields: [productId], references: [id])
+  supplier SupplierProfile? @relation(fields: [supplierId], references: [id])
 }
