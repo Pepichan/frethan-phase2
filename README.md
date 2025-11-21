@@ -1,6 +1,6 @@
 # 🧱 Frethan Project – ICT302 Phase 2
-A web platform for supplier verification, RFQ management, and procurement transparency.
-
+A web platform for supplier verification, RFQ management, and procurement transparency.  
+  
 ## 🛠️ Technology Stack
 - 🩵 Project Manager: GitHub + Notion + Google Drive
 - 🟣 Frontend: React + Vite + Tailwind + TypeScript  
@@ -9,24 +9,23 @@ A web platform for supplier verification, RFQ management, and procurement transp
 - ⚪ UI/UX: Figma + Canva
 - 🔴 QA/Tester: Postman + Web browser
 - Smart Contract: Solidity + Hardhat + ethers.js
-- Hosting: Vercel (Frontend), Render (Backend), Neon (DB)
-
+- Hosting: Vercel (Frontend), Render (Backend), Neon (DB)  
+  
 ## 👥 Team Members
 - 🩵 Project Manager & 🟢 Database Engineer: Rie HAGIWARA (12203845@students.koi.edu.au)
 - 🟣 Frontend Developer: Deepika THAPA KSHETRI (12301540@students.koi.edu.au)
 - 🟡 Backend Developer: Anish DAHAL (20027258@students.koi.edu.au) & Dipesh NEPAL (20027131@students.koi.edu.au)
 - ⚪ UI/UX Designer: Rupak GHIMIRE (12300071@students.koi.edu.au)
-- 🔴 QA & Blockchain Support: Nischal BHANDARI (20028654@students.koi.edu.au)
+- 🔴 QA & Blockchain Support: Nischal BHANDARI (20028654@students.koi.edu.au)  
 
 ## 🔗 Useful Links
 - Client: Frethan Technology (Brisbane)
-- Supervisor: Mr. Vito Wu (project1@chinadirectsourcing.com.au)
+- Supervisor: Mr. Vito Wu (project1@chinadirectsourcing.com.au)  
 
 ## 📂 Folder Structure
 - `/frontend` – UI implementation (React)
 - `/backend` – API implementation (Express)
-- `/docs` – Documentation & Reports
-- `/database` – Prisma schema, migrations
+- `/docs` – Documentation & Reports  
 
 ## 🌿 Branch Structure (Development Workflow)
 
@@ -42,11 +41,47 @@ We use a **three-branch structure** to maintain clean and collaborative developm
 - Do not push directly to the main branch.
 All changes must go through dev and be tested before merging into main.
 - Use lowercase letters and hyphens (-) for all branch names.
-Example: feature/backend-api-auth
+Example: feature/FRE-19-backend-api-auth
 - Create one branch per feature or weekly task.
 After merging into dev, old branches can be safely deleted.
 
+## 🪜 Branch Workflow
+Always follow this workflow when you start **any new work** (Backend / Frontend / Database / Docs).
 
+1. Pull the latest dev branch:
+   
+   ```
+   git checkout dev       # Switch to dev branch
+   git pull origin dev     # Get the latest changes from GitHub
+   ```
+   **Why?** So your local code is up to date with the team. This reduces merge conflicts.  
+   💡 Do this before you start working each day and before you create a new branch.  
+
+
+3. Create a new branch based on your role:
+   ```
+   git checkout -b feature/FRE-21-frontend-login-page
+   ```
+   **Why?** You should never work directly on dev or main. Each Jira issue/task should have its own feature branch.  
+
+
+4. Commit and push your changes:
+   After you finish a small logical part (not the whole project), do:
+   ```
+   git add .
+   git commit -m "FRE-21: Add login page UI"   # Commit with Jira issue key
+   git push -u origin feature/FRE-21-frontend-login-page
+   ```
+
+6. Create a Pull Request (PR) on GitHub:
+   ```
+   - Base branch: dev
+   - Compare branch: your feature branch
+   - Provide a short and clear PR title with Jira Issue ID and description.
+   ```
+   In the PR:
+   - Title example: FRE-21: Add frontend login page
+   - Description: What you changed, How to test (if needed), Mention related Jira issue (e.g. FRE-21)
 ---
 
 
@@ -105,7 +140,7 @@ To avoid this:
 - Leave a comment if you are blocked
 
 
-# 🔗 Jira – GitHub Automation Summary
+## 🔗 Jira – GitHub Automation Summary
 
 Our workspace includes the following automations:
 
@@ -117,46 +152,7 @@ Our workspace includes the following automations:
 These rules only work if the Jira Issue ID is correctly used in GitHub.
 
 
-# 🙌 Need help?
+## 🙌 Need help?
 If you're unsure about the workflow, naming, or Jira linking, please contact the PM before creating your Pull Request.
 
----
-
-## 🪜 Branch Workflow
-Always follow this workflow when you start **any new work** (Backend / Frontend / Database / Docs).
-
-1. Pull the latest dev branch:
-   
-   ```
-   git checkout dev       # Switch to dev branch
-   git pull origin dev     # Get the latest changes from GitHub
-   ```
-   **Why?** So your local code is up to date with the team. This reduces merge conflicts.  
-   💡 Do this before you start working each day and before you create a new branch.  
-
-
-3. Create a new branch based on your role:
-   ```
-   git checkout -b feature/FRE-21-frontend-login-page
-   ```
-   **Why?** You should never work directly on dev or main. Each Jira issue/task should have its own feature branch.  
-
-
-4. Commit and push your changes:
-   After you finish a small logical part (not the whole project), do:
-   ```
-   git add .
-   git commit -m "FRE-21: Add login page UI"   # Commit with Jira issue key
-   git push -u origin feature/FRE-21-frontend-login-page
-   ```
-
-6. Create a Pull Request (PR) on GitHub:
-   ```
-   - Base branch: dev
-   - Compare branch: your feature branch
-   - Provide a short and clear PR title with Jira Issue ID and description.
-   ```
-   In the PR:
-   - Title example: FRE-21: Add frontend login page
-   - Description: What you changed, How to test (if needed), Mention related Jira issue (e.g. FRE-21)
   
