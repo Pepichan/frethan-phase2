@@ -1,0 +1,51 @@
+# .github/workflows/jira-pr-sync.yml
+name: Sync Jira Issue with Pull Request
+
+on:
+  pull_request:
+    # PR が dev に対して作成・再オープン・クローズされた時に動く
+    types: [opened, reopened, closed]
+    branches:
+      - dev
+
+jobs:
+  jira:
+    name: Update Jira issue
+    runs-on: ubuntu-latest
+
+    steps:
+      # ① Jira にログイン
+      - name: Login to Jira
+        uses: atlassian/gajira-login@v3
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+
+      # ② PR タイトルから Issue Key (例: FRE-19) を抽出
+      - name: Find issue key from PR title
+        id: find
+        uses: atlassian/gajira-find-issue-key@v3
+        with:
+          string: ${{ github.event.pull_request.title }}
+
+      # ③ PR が open / reopen されたら → In Review に動かす（任意）
+      - name: Transition issue to In Review when PR is opened
+        if: >
+          (github.event.action == 'opened' || github.event.action == 'reopened')
+          && steps.find.outputs.issue != ''
+        uses: atlassian/gajira-transition@v3
+        with:
+          issue: ${{ steps.find.outputs.issue }}
+          transition: "In Review"   # Jira の遷移名に合わせて変更してもOK :contentReference[oaicite:1]{index=1}
+
+      # ④ PR がマージされたら → Done に動かす
+      - name: Transition issue to Done when PR is merged
+        if: >
+          github.event.action == 'closed'
+          && github.event.pull_request.merged == true
+          && steps.find.outputs.issue != ''
+        uses: atlassian/gajira-transition@v3
+        with:
+          issue: ${{ steps.find.outputs.issue }}
+          transition: "Done"        # Jira の「Done」への遷移名
