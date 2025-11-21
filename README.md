@@ -123,28 +123,40 @@ If you're unsure about the workflow, naming, or Jira linking, please contact the
 ---
 
 ## 🪜 Branch Workflow
+Always follow this workflow when you start **any new work** (Backend / Frontend / Database / Docs).
 
 1. Pull the latest dev branch:
+   
    ```
-   git checkout dev
-   git pull origin dev
+   git checkout dev       # Switch to dev branch
+   git pull origin dev     # Get the latest changes from GitHub
    ```
+   **Why?** So your local code is up to date with the team. This reduces merge conflicts.  
+   💡 Do this before you start working each day and before you create a new branch.  
 
-2. Create a new branch based on your role:
+
+3. Create a new branch based on your role:
    ```
    git checkout -b feature/FRE-21-frontend-login-page
    ```
+   **Why?** You should never work directly on dev or main. Each Jira issue/task should have its own feature branch.  
 
-3. Commit and push your changes:
+
+4. Commit and push your changes:
+   After you finish a small logical part (not the whole project), do:
    ```
    git add .
-   git commit -m "Add login page UI"
+   git commit -m "FRE-21: Add login page UI"   # Commit with Jira issue key
    git push -u origin feature/FRE-21-frontend-login-page
    ```
 
-4. Create a Pull Request (PR) on GitHub:
+6. Create a Pull Request (PR) on GitHub:
    ```
    - Base branch: dev
    - Compare branch: your feature branch
    - Provide a short and clear PR title with Jira Issue ID and description.
    ```
+   In the PR:
+   - Title example: FRE-21: Add frontend login page
+   - Description: What you changed, How to test (if needed), Mention related Jira issue (e.g. FRE-21)
+   
