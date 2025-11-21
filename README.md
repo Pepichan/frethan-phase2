@@ -159,4 +159,4 @@ Always follow this workflow when you start **any new work** (Backend / Frontend 
    In the PR:
    - Title example: FRE-21: Add frontend login page
    - Description: What you changed, How to test (if needed), Mention related Jira issue (e.g. FRE-21)
-   
+  
