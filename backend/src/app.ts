@@ -7,6 +7,7 @@ import { PrismaClient } from '@prisma/client';
 // Import routes
 import userRoutes from './routes/userRoutes';
 
+// TODO: Later move Prisma client to a separate config file (e.g. src/config/prisma.ts)
 const app = express();
 export const prisma = new PrismaClient();
 
@@ -30,21 +31,23 @@ app.get('/api/health', (req, res) => {
 });
 
 // Test database connection
-app.get('/api/test-db', async (req, res) => {
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    res.status(200).json({ 
-      status: 'OK', 
-      message: 'Database connection successful' 
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      status: 'Error', 
-      message: 'Database connection failed',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
+if (process.env.NODE_ENV === 'development') {
+  app.get('/api/test-db', async (req, res) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      res.status(200).json({
+        status: 'OK',
+        message: 'Database connection successful',
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: 'Error',
+        message: 'Database connection failed',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
+}
 
 // 404 handler
 app.use('*', (req, res) => {
