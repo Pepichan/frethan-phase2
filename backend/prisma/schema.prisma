@@ -29,10 +29,11 @@ model User {
   role            Role             @relation(fields: [roleId], references: [id])
   supplierProfile SupplierProfile?
 
-  rfqs          RFQ[]          @relation("BuyerRFQs")
-  orders        Order[]        @relation("BuyerOrders")
-  payments      Payment[]      @relation("BuyerPayments")
-  goodsReceipts GoodsReceipt[] @relation("ReceiverGoodsReceipts")
+  rfqs           RFQ[]               @relation("BuyerRFQs")
+  orders         Order[]             @relation("BuyerOrders")
+  payments       Payment[]           @relation("BuyerPayments")
+  goodsReceipts  GoodsReceipt[]      @relation("ReceiverGoodsReceipts")
+  socialAccounts UserSocialAccount[]
 }
 
 model SupplierProfile {
@@ -68,7 +69,7 @@ model Product {
   id             Int     @id @default(autoincrement())
   supplierId     Int
   categoryId     Int
-  name           String
+  product_name   String
   description    String?
   specifications String?
   unit           String
@@ -158,6 +159,7 @@ model Order {
   invoices      Invoice[]
   goodsReceipts GoodsReceipt[]
   shipments     Shipment[]
+  contractRef   ContractRef?
 }
 
 model OrderItem {
@@ -300,4 +302,29 @@ model ComplianceCertificate {
 
   product  Product?         @relation(fields: [productId], references: [id])
   supplier SupplierProfile? @relation(fields: [supplierId], references: [id])
+}
+
+model UserSocialAccount {
+  id             Int      @id @default(autoincrement())
+  provider       String
+  providerUserId String
+  email          String?
+  userId         Int
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("UserSocialAccount")
+}
+
+model ContractRef {
+  id              Int      @id @default(autoincrement())
+  orderId         Int      @unique
+  contractAddress String
+  transactionHash String
+  createdAt       DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("ContractRef")
 }
