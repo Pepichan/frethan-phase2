@@ -47,17 +47,17 @@ export const getUserById = async (req: Request, res: Response) => {
 
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const { name, email } = req.body;
+    const { firstName, lastName, userEmail } = req.body;
     
-    if (!name || !email) {
+    if (!firstName || !lastName || !userEmail) {
       return res.status(400).json({
         status: 'error',
-        message: 'Name and email are required'
+        message: 'First name, last name, and email are required'
       });
     }
 
     const user = await prisma.user.create({
-      data: { name, email }
+      data: { firstName, lastName, userEmail, roleId: 1, passwordHash: '', }
     });
 
     res.status(201).json({
@@ -76,18 +76,21 @@ export const createUser = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, email } = req.body;
+    const { firstName, lastName, userEmail } = req.body;
 
-    if (!name && !email) {
+    if (!firstName && !lastName && !userEmail) {
       return res.status(400).json({
         status: 'error',
-        message: 'At least one field (name or email) is required for update'
+        message: 'At least one field (first name, last name, or email) is required for update'
       });
     }
 
     const user = await prisma.user.update({
       where: { id: parseInt(id) },
-      data: { name, email }
+      data: {
+    ...(firstName && { firstName }),
+    ...(lastName && { lastName }),
+    ...(userEmail && { userEmail }), },
     });
 
     res.status(200).json({
