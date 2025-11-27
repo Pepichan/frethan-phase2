@@ -177,7 +177,7 @@ model Product {
 
   @@index([supplierId])
   @@index([categoryId])
-  @@index([product_name])
+  @@index([productName])
 }
 
 model RFQ {
