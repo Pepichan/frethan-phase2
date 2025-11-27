@@ -160,7 +160,7 @@ model Product {
   id             Int     @id @default(autoincrement())
   supplierId     Int
   categoryId     Int
-  product_name   String
+  productName   String
   description    String?
   specifications String?
   unit           String
