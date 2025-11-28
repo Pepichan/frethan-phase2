@@ -35,6 +35,44 @@ CI is triggered automatically on:
 ```yaml
 on:
   push:
-    branches: [ dev ]
+    branches: [ "dev", "main" ]
   pull_request:
-    branches: [ dev ]
+    branches: [ "dev", "main" ]
+```
+🎯 Automatic Path Filtering
+- Each workflow runs only if files in its area changed:
+- `backend-ci.yml` → triggered by `backend/**`
+- `frontend-ci.yml` → triggered by `frontend/**`
+
+---
+
+## 🟡 Backend CI Details (backend-ci.yml)
+
+Working directory: `backend/`
+
+### 🛠️ Steps
+
+1. `npm ci`
+2. `npx prisma generate` (generate Prisma client)
+3. `npm run lint` (ESLint for TS)
+4. `npm run build` (TypeScript compile → dist/)
+5. `npm test` (Jest integration tests)
+   
+🔍 If any step fails, CI stops and the PR is marked as ❌ failed.
+
+## 🟣 Frontend CI Details (frontend-ci.yml)
+
+Working directory: `frontend/`
+
+### 🛠️ Steps
+
+1. npm ci
+2. npm run lint (ESLint + React + TS)
+3. npm run build (Vite production build)
+4. npm test (Vitest + React Testing Library)
+   
+🧪 Test files are stored under:
+```
+src/__tests__/
+src/test/
+```
