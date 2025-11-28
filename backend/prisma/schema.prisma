@@ -257,10 +257,6 @@ model Order {
   totalAmount Decimal     @db.Decimal(14, 2)
   currency    String      @default("AUD")
 
-  buyer    User            @relation("BuyerOrders", fields: [buyerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  supplier SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  quote    Quote           @relation(fields: [quoteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-
   buyer         User            @relation("BuyerOrders", fields: [buyerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   supplier      SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   quote         Quote           @relation(fields: [quoteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
