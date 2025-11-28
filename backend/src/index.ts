@@ -23,12 +23,12 @@ app.use(
 
 app.use(express.json());
 
-// ✅ ルート
+// ✅
 app.get("/", (_req, res) => {
   res.send("Frethan API is running. Try GET /health");
 });
 
-// ✅ Health + DB 接続テスト
+// ✅ Health + DB
 app.get("/health", async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
@@ -62,4 +62,14 @@ process.on("SIGINT", async () => {
 process.on("SIGTERM", async () => {
   await prisma.$disconnect();
   process.exit(0);
+});
+
+// Add this route - usually after your other route imports
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'Backend is running',
+    timestamp: new Date().toISOString(),
+    service: 'frethan-backend'
+  });
 });

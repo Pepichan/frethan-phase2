@@ -50,7 +50,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use((req, res) => {
   res.status(404).json({
     status: 'Error',
     message: `Route ${req.originalUrl} not found`

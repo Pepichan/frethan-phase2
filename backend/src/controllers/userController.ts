@@ -52,7 +52,7 @@ export const createUser = async (req: Request, res: Response) => {
     if (!firstName || !lastName || !userEmail) {
       return res.status(400).json({
         status: 'error',
-        message: 'firstName, lastName, and userEmail are required'
+        message: 'First name, last name, and email are required'
       });
     }
 
@@ -81,13 +81,16 @@ export const updateUser = async (req: Request, res: Response) => {
     if (!firstName && !lastName && !userEmail) {
       return res.status(400).json({
         status: 'error',
-        message: 'At least one field (firstName, lastName, or userEmail) is required for update'
+        message: 'At least one field (first name, last name, or email) is required for update'
       });
     }
 
     const user = await prisma.user.update({
       where: { id: parseInt(id) },
-      data: { firstName, lastName, userEmail }
+      data: {
+    ...(firstName && { firstName }),
+    ...(lastName && { lastName }),
+    ...(userEmail && { userEmail }), },
     });
 
     res.status(200).json({

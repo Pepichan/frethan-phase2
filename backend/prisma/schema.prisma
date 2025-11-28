@@ -109,21 +109,18 @@ model User {
   status       UserStatus @default(ACTIVE)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-
   resetToken          String? // ランダムトークン
   resetTokenExpiresAt DateTime? // 有効期限
-
   failedLoginAttempts Int       @default(0)
   lockoutUntil        DateTime?
 
   role            Role             @relation(fields: [roleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   supplierProfile SupplierProfile?
-
-  rfqs           RFQ[]               @relation("BuyerRFQs")
-  orders         Order[]             @relation("BuyerOrders")
-  payments       Payment[]           @relation("BuyerPayments")
-  goodsReceipts  GoodsReceipt[]      @relation("ReceiverGoodsReceipts")
-  socialAccounts UserSocialAccount[]
+  rfqs            RFQ[]               @relation("BuyerRFQs")
+  orders          Order[]             @relation("BuyerOrders")
+  payments        Payment[]           @relation("BuyerPayments")
+  goodsReceipts   GoodsReceipt[]      @relation("ReceiverGoodsReceipts")
+  socialAccounts  UserSocialAccount[]
 }
 
 model SupplierProfile {
@@ -153,7 +150,6 @@ model MaterialCategory {
 
   parent   MaterialCategory?  @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   children MaterialCategory[] @relation("CategoryHierarchy")
-
   products Product[]
 
   @@index([categoryName])
@@ -163,7 +159,7 @@ model Product {
   id             Int     @id @default(autoincrement())
   supplierId     Int
   categoryId     Int
-  product_name   String
+  productName   String
   description    String?
   specifications String?
   unit           String
@@ -172,16 +168,15 @@ model Product {
   leadTimeDays   Int?
   isActive       Boolean @default(true)
 
-  supplier SupplierProfile  @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  category MaterialCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-
+  supplier     SupplierProfile         @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  category     MaterialCategory        @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   rfqItems     RFQItem[]
   orderItems   OrderItem[]
   certificates ComplianceCertificate[]
 
   @@index([supplierId])
   @@index([categoryId])
-  @@index([product_name])
+  @@index([productName])
 }
 
 model RFQ {
@@ -209,9 +204,8 @@ model RFQItem {
   quantity    Decimal @db.Decimal(14, 2)
   unit        String
 
-  rfq     RFQ      @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-
+  rfq        RFQ         @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product    Product?    @relation(fields: [productId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   quoteItems QuoteItem[]
 
   @@index([rfqId])
@@ -267,6 +261,9 @@ model Order {
   supplier SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   quote    Quote           @relation(fields: [quoteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
+  buyer         User            @relation("BuyerOrders", fields: [buyerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplier      SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  quote         Quote           @relation(fields: [quoteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   items         OrderItem[]
   invoices      Invoice[]
   goodsReceipts GoodsReceipt[]
@@ -286,9 +283,8 @@ model OrderItem {
   unitPrice Decimal @db.Decimal(14, 2)
   lineTotal Decimal @db.Decimal(14, 2)
 
-  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-
+  order             Order              @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product           Product            @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   goodsReceiptItems GoodsReceiptItem[]
   invoiceItems      InvoiceItem[]
 
@@ -306,11 +302,10 @@ model GoodsReceipt {
   reference        String?
   notes            String?
 
-  order      Order     @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  shipment   Shipment? @relation(fields: [shipmentId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  receivedBy User      @relation("ReceiverGoodsReceipts", fields: [receivedByUserId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-
-  items GoodsReceiptItem[]
+  order      Order              @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  shipment   Shipment?          @relation(fields: [shipmentId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  receivedBy User               @relation("ReceiverGoodsReceipts", fields: [receivedByUserId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  items      GoodsReceiptItem[]
 
   @@index([orderId])
   @@index([shipmentId])
