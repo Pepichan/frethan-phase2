@@ -1,0 +1,127 @@
+.login-page {
+    min-height: calc(100vh - 140px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+    background: #f5f7fb;
+  }
+  
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px 24px 24px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+    box-sizing: border-box;
+  }
+  
+  .login-header h2 {
+    font-size: 22px;
+    margin-bottom: 4px;
+    color: #0a1a33;
+  }
+  
+  .login-subtitle {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 20px;
+  }
+  
+  .login-form .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  
+  .login-form .field span {
+    font-size: 13px;
+    color: #374151;
+  }
+  
+  .login-form input[type="email"],
+  .login-form input[type="password"] {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+  }
+  
+  .login-form input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3);
+  }
+  
+  .login-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 8px 0 14px;
+    font-size: 13px;
+  }
+  
+  .remember-me {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .text-link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #2563eb;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  
+  .primary-btn {
+    border: none;
+    background: #0a1a33;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .primary-btn:disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
+  
+  .full-width {
+    width: 100%;
+    margin-top: 4px;
+  }
+  
+  /* Divider */
+  .divider-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 18px 0 16px;
+  }
+  
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: #e5e7eb;
+  }
+  
+  .divider-text {
+    font-size: 12px;
+    color: #9ca3af;
+  }
+  
+  /* Footer text */
+  .login-footer-text {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 13px;
+    color: #6b7280;
+  }
+  
