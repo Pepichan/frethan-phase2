@@ -1,0 +1,66 @@
+/* Error banner */
+.auth-error-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  
+  .auth-error-close {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #b91c1c;
+  }
+  
+  /* Social buttons */
+  .social-login-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .social-btn {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: center;
+    background: #ffffff;
+  }
+  
+  .social-btn:disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
+  
+  /* Provider specific colors (subtle) */
+  .social-google {
+    border-color: #d1d5db;
+  }
+  
+  .social-facebook {
+    border-color: #2563eb;
+    color: #1d4ed8;
+  }
+  
+  .social-wechat {
+    border-color: #10b981;
+    color: #059669;
+  }
+  
+  .wechat-note {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 4px;
+  }
+  
