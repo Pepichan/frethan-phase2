@@ -7,10 +7,9 @@ It serves as the **source of truth** for all Prisma models, PostgreSQL database 
 
 ## 📁 1. Files
 
-- **`frethan-er-v1.png`**  
-  Final ER diagram used in Phase 2 for database development.
-
-> 📌 **Path:** `docs/er-diagram/frethan-er-v1.png`
+**`frethan-er-v1.png`** : Initial Phase 2 ERD used for baseline development
+**`frethan-er-v2.png`** : Updated with OAuth and ContractRef relations
+**`frethan-er-v3.png`** : Updated with Payment + Notification tables (W6)
 
 ---
 
@@ -47,6 +46,11 @@ The ER diagram reflects Frethan’s complete procurement workflow.
 - `ComplianceCertificate` stores product/supplier certificates.
 - Supports optional `blockchainTxId` for future blockchain integration.
 
+### 🔔 Notification & User Engagement
+- Notification stores user-facing events related to orders (e.g. order created, shipment updated).
+- Each Notification belongs to a User and optionally to an Order.
+- Used by the frontend to show in‑app notifications and read/unread state.
+
 ---
 
 ## 🔗 3. Relationship Highlights
@@ -58,6 +62,8 @@ The ER diagram reflects Frethan’s complete procurement workflow.
 - **1 Order → many OrderItems / Shipments / GoodsReceipts / Invoices**  
 - **1 Shipment → many ShipmentUpdates / many GoodsReceipts**  
 - **1 Payment → many PaymentAllocations → many Invoices**
+- **1 User → many Notifications**
+- **1 Order → many Notifications**
 
 These relationships are mapped using Prisma `@relation` fields inside: backend/prisma/schema.prisma
 
@@ -66,10 +72,11 @@ These relationships are mapped using Prisma `@relation` fields inside: backend/p
 ## 🛠️ 4. Mapping to Prisma & PostgreSQL
 
 The ER diagram corresponds to Prisma models defined in: backend/prisma/schema.prisma
-
 Prisma generates PostgreSQL tables using: cd backend → npx prisma migrate dev --name init
-
 This command creates **20+ tables** inside the `frethan_db` database.
+
+`frethan-er-v3.png` aligns with Prisma migrations up to add_notification_table (W6).
+When adding new migrations, update both schema.prisma and the ER diagram version.
 
 ---
 
@@ -99,6 +106,13 @@ Follow this process whenever the database structure changes:
   - Frontend data structures  
   - ICT302 final report documentation  
 - Future features (blockchain, analytics, automation) should extend this model.
+
+---
+
+## 📝 7. ER Diagram Changelog
+- v1 – Initial procurement workflow (User, RFQ, Quote, Order, Shipment, Invoice, Payment, etc.)
+- v2 – Added OAuth social login and ContractRef for blockchain contracts.
+- v3 – Added Notification table and relations to User and Order (W6).
 
 
 
