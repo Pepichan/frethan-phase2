@@ -121,6 +121,7 @@ model User {
   payments        Payment[]           @relation("BuyerPayments")
   goodsReceipts   GoodsReceipt[]      @relation("ReceiverGoodsReceipts")
   socialAccounts  UserSocialAccount[]
+  notifications Notification[]
 }
 
 model SupplierProfile {
@@ -265,6 +266,7 @@ model Order {
   goodsReceipts GoodsReceipt[]
   shipments     Shipment[]
   contractRef   ContractRef?
+  notifications Notification[]
 
   @@index([buyerId, orderDate])
   @@index([supplierId])
@@ -466,4 +468,20 @@ model ContractRef {
   order Order @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@map("ContractRef")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  orderId   Int?
+  type      String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([orderId])
 }
