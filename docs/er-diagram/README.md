@@ -8,7 +8,9 @@ It serves as the **source of truth** for all Prisma models, PostgreSQL database 
 ## 📁 1. Files
 
 **`frethan-er-v1.png`** : Initial Phase 2 ERD used for baseline development
+
 **`frethan-er-v2.png`** : Updated with OAuth and ContractRef relations
+
 **`frethan-er-v3.png`** : Updated with Payment + Notification tables (W6)
 
 ---
