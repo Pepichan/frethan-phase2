@@ -1,25 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-const Dashboard: React.FC = () => {
+export default function Dashboard() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("You must be logged in to access the dashboard.");
+      navigate("/login");
+    }
+  }, []);
+
   return (
-    <div style={{ padding: "40px", textAlign: "center" }}>
-      <h1 style={{ fontSize: "32px", marginBottom: "20px" }}>
-        Dashboard Page
-      </h1>
-
-      <p
-        style={{
-          maxWidth: "700px",
-          margin: "0 auto",
-          fontSize: "18px",
-          lineHeight: "1.6",
-        }}
-      >
-        This is your procurement dashboard.  
-        Later we will add metrics, order tables, supplier verification status, and more.
-      </p>
+    <div style={{ padding: "2rem" }}>
+      <h1>Dashboard</h1>
+      <p>Welcome to your secure dashboard.</p>
     </div>
   );
-};
-
-export default Dashboard;
+}

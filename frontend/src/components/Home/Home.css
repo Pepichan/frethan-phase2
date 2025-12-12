@@ -8,6 +8,10 @@
   align-items: center;
   justify-content: center;
 }
+.card-link {
+  text-decoration: none;
+  color: inherit;
+}
 
 .hero-image img {
   width: 100%;

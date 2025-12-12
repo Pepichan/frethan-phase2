@@ -1,129 +1,125 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-
-import SocialLoginButtons from "../components/auth/SocialLoginButtons";
-import AuthErrorBanner from "../components/auth/AuthErrorBanner";
-
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
-type Provider = "google" | "facebook" | "wechat-demo";
-
 const Login: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string>("");
-
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Check URL for ?error=… from backend redirects
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const error = params.get("error");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-    if (error === "access_denied") {
-      setErrorMsg("Login cancelled. Please try again.");
-    } else if (error === "invalid") {
-      setErrorMsg("Login failed. Invalid credentials or provider error.");
-    } else if (error) {
-      setErrorMsg("Something went wrong during login. Please try again.");
-    }
-  }, [location.search]);
-
-  const handleSocialClick = (provider: Provider) => {
-    setErrorMsg("");
-    setIsLoading(true);
-
-    let url = "";
-    switch (provider) {
-      case "google":
-        url = "/auth/google";
-        break;
-      case "facebook":
-        url = "/auth/facebook";
-        break;
-      case "wechat-demo":
-        url = "/auth/wechat-demo";
-        break;
-    }
-
-    // Redirect to backend OAuth route
-    window.location.href = url;
-  };
-
-  const handleFakeSuccess = (e: React.FormEvent) => {
+  // ----------------------------
+  // NORMAL EMAIL/PASSWORD LOGIN
+  // ----------------------------
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setErrorMsg("");
+    setError("");
 
-    // This is just a placeholder to show "success → dashboard"
-    // In real app, backend would redirect after login.
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const res = await fetch("http://localhost:4000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.msg || "Incorrect email or password");
+        return;
+      }
+
+      const token = data.token || "manual-login-token";
+      localStorage.setItem("token", token);
+
       navigate("/dashboard");
-    }, 800);
+    } catch (err) {
+      setError("Login failed. Please try again.");
+    }
   };
+
+  // ----------------------------
+  // SOCIAL LOGINS
+  // ----------------------------
+
+  // Google OAuth
+  const handleGoogle = () => {
+    window.location.href = "http://localhost:4000/auth/google";
+  };
+
+  // Facebook OAuth
+  const handleFacebook = () => {
+    window.location.href = "http://localhost:4000/auth/facebook";
+  };
+
+  // Fake WeChat Demo
+  const handleWeChat = () => {
+    alert("WeChat login demo coming soon!");
+    // If later you want redirect:
+    // window.location.href = "http://localhost:4000/auth/wechat-demo";
+  };
+
+  // ----------------------------
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <div className="login-header">
-          <h2>Sign in to Frethan</h2>
-          <p className="login-subtitle">
-            Access your procurement dashboard and manage your supply chain.
-          </p>
-        </div>
+    <div className="login-wrapper">
+      <div className="login-container">
 
-        {/* Error banner */}
-        <AuthErrorBanner message={errorMsg} onClose={() => setErrorMsg("")} />
+        <h2 className="title">Welcome Back</h2>
+        <p className="subtitle">Sign in to continue managing your supply chain</p>
 
-        {/* Main email/password form */}
-        <form className="login-form" onSubmit={handleFakeSuccess}>
-          <label className="field">
-            <span>Email</span>
-            <input type="email" placeholder="Enter your email" required />
-          </label>
+        {error && <p className="error-box">{error}</p>}
 
-          <label className="field">
-            <span>Password</span>
-            <input type="password" placeholder="Enter your password" required />
-          </label>
-
-          <div className="login-row">
-            <label className="remember-me">
-              <input type="checkbox" defaultChecked />
-              Remember me
-            </label>
-            <button type="button" className="text-link">
-              Forgot password?
-            </button>
+        <form onSubmit={handleSubmit} className="form">
+          <div className="input-group">
+            <label>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@example.com"
+              required
+            />
           </div>
 
-          <button
-            type="submit"
-            className="primary-btn full-width"
-            disabled={isLoading}
-          >
-            {isLoading ? "Signing in…" : "Sign in"}
+          <div className="input-group">
+            <label>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <button type="submit" className="primary-btn">
+            Sign In
           </button>
         </form>
 
-        {/* Divider */}
-        <div className="divider-row">
-          <span className="divider-line" />
-          <span className="divider-text">or continue with</span>
-          <span className="divider-line" />
-        </div>
+        <div className="divider">or continue with</div>
 
-        {/* Social login buttons */}
-        <SocialLoginButtons
-          onSocialClick={handleSocialClick}
-          isLoading={isLoading}
-        />
+        {/* Google */}
+        <button className="social-btn google" onClick={handleGoogle}>
+          Continue with Google
+        </button>
 
-        {/* Footer text */}
-        <p className="login-footer-text">
-          Don’t have an account? <span className="text-link">Sign up</span>
+        {/* Facebook */}
+        <button className="social-btn facebook" onClick={handleFacebook}>
+          Continue with Facebook
+        </button>
+
+        {/* WeChat Demo */}
+        <button className="social-btn wechat" onClick={handleWeChat}>
+          Continue with WeChat (Demo)
+        </button>
+
+        <p className="signup-text">
+          Don’t have an account? <a href="/signup">Create one</a>
         </p>
+
       </div>
     </div>
   );
