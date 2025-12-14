@@ -1,0 +1,487 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/**
+ * ENUMS
+ */
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum SupplierVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum RFQStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  CANCELLED
+}
+
+enum QuoteStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum GoodsReceiptStatus {
+  PENDING
+  PARTIAL
+  ACCEPTED
+  REJECTED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CREDIT_CARD
+  CASH
+  OTHER
+}
+
+enum ShipmentStatus {
+  PENDING
+  IN_TRANSIT
+  DELIVERED
+  DELAYED
+  CANCELLED
+}
+
+enum CertificateStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+/**
+ * MODELS
+ */
+
+model Role {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  users User[]
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  roleId       Int
+  firstName    String
+  lastName     String
+  userEmail    String     @unique
+  passwordHash String?
+  phone        String?
+  addresses    Json?      @db.Json
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  resetToken          String? // ランダムトークン
+  resetTokenExpiresAt DateTime? // 有効期限
+  failedLoginAttempts Int       @default(0)
+  lockoutUntil        DateTime?
+
+  role            Role             @relation(fields: [roleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplierProfile SupplierProfile?
+  rfqs            RFQ[]               @relation("BuyerRFQs")
+  orders          Order[]             @relation("BuyerOrders")
+  payments        Payment[]           @relation("BuyerPayments")
+  goodsReceipts   GoodsReceipt[]      @relation("ReceiverGoodsReceipts")
+  socialAccounts  UserSocialAccount[]
+  notifications Notification[]
+}
+
+model SupplierProfile {
+  id                 Int                        @id @default(autoincrement())
+  userId             Int                        @unique
+  companyName        String
+  addresses          Json?                      @db.Json
+  supplierEmail      String                     @unique
+  phone              String?
+  verificationStatus SupplierVerificationStatus @default(PENDING)
+  ratingAvg          Float?
+
+  user         User                    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  products     Product[]
+  quotes       Quote[]
+  orders       Order[]
+  certificates ComplianceCertificate[]
+
+  @@index([companyName])
+}
+
+model MaterialCategory {
+  id               Int     @id @default(autoincrement())
+  categoryName     String
+  description      String?
+  parentCategoryId Int?
+
+  parent   MaterialCategory?  @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  children MaterialCategory[] @relation("CategoryHierarchy")
+  products Product[]
+
+  @@index([categoryName])
+}
+
+model Product {
+  id             Int     @id @default(autoincrement())
+  supplierId     Int
+  categoryId     Int
+  productName   String
+  description    String?
+  specifications String?
+  unit           String
+  basePrice      Decimal @db.Decimal(14, 2)
+  currency       String  @default("AUD")
+  leadTimeDays   Int?
+  isActive       Boolean @default(true)
+
+  supplier     SupplierProfile         @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  category     MaterialCategory        @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  rfqItems     RFQItem[]
+  orderItems   OrderItem[]
+  certificates ComplianceCertificate[]
+
+  @@index([supplierId])
+  @@index([categoryId])
+  @@index([productName])
+}
+
+model RFQ {
+  id         Int       @id @default(autoincrement())
+  buyerId    Int
+  requiredBy DateTime?
+  notes      String?
+  status     RFQStatus @default(DRAFT)
+  currency   String    @default("AUD")
+  createdAt  DateTime  @default(now())
+
+  buyer  User      @relation("BuyerRFQs", fields: [buyerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  items  RFQItem[]
+  quotes Quote[]
+
+  @@index([buyerId, createdAt])
+  @@index([status])
+}
+
+model RFQItem {
+  id          Int     @id @default(autoincrement())
+  rfqId       Int
+  productId   Int?
+  description String
+  quantity    Decimal @db.Decimal(14, 2)
+  unit        String
+
+  rfq        RFQ         @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product    Product?    @relation(fields: [productId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  quoteItems QuoteItem[]
+
+  @@index([rfqId])
+  @@index([productId])
+}
+
+model Quote {
+  id            Int         @id @default(autoincrement())
+  rfqId         Int
+  supplierId    Int
+  totalPrice    Decimal     @db.Decimal(14, 2)
+  currency      String      @default("AUD")
+  validityUntil DateTime?
+  status        QuoteStatus @default(PENDING)
+  createdAt     DateTime    @default(now())
+
+  rfq      RFQ             @relation(fields: [rfqId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplier SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  items    QuoteItem[]
+  orders   Order[]
+
+  @@index([rfqId])
+  @@index([supplierId])
+  @@index([status])
+}
+
+model QuoteItem {
+  id        Int     @id @default(autoincrement())
+  quoteId   Int
+  rfqItemId Int
+  unitPrice Decimal @db.Decimal(14, 2)
+  quantity  Decimal @db.Decimal(14, 2)
+  subtotal  Decimal @db.Decimal(14, 2)
+
+  quote   Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  rfqItem RFQItem @relation(fields: [rfqItemId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([quoteId])
+  @@index([rfqItemId])
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  buyerId     Int
+  supplierId  Int
+  quoteId     Int
+  orderDate   DateTime    @default(now())
+  status      OrderStatus @default(PENDING)
+  totalAmount Decimal     @db.Decimal(14, 2)
+  currency    String      @default("AUD")
+
+  buyer         User            @relation("BuyerOrders", fields: [buyerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplier      SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  quote         Quote           @relation(fields: [quoteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  items         OrderItem[]
+  invoices      Invoice[]
+  goodsReceipts GoodsReceipt[]
+  shipments     Shipment[]
+  contractRef   ContractRef?
+  notifications Notification[]
+
+  @@index([buyerId, orderDate])
+  @@index([supplierId])
+  @@index([status])
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Decimal @db.Decimal(14, 2)
+  unitPrice Decimal @db.Decimal(14, 2)
+  lineTotal Decimal @db.Decimal(14, 2)
+
+  order             Order              @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product           Product            @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  goodsReceiptItems GoodsReceiptItem[]
+  invoiceItems      InvoiceItem[]
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model GoodsReceipt {
+  id               Int                @id @default(autoincrement())
+  orderId          Int
+  shipmentId       Int?
+  receivedAt       DateTime
+  receivedByUserId Int
+  status           GoodsReceiptStatus
+  reference        String?
+  notes            String?
+
+  order      Order              @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  shipment   Shipment?          @relation(fields: [shipmentId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  receivedBy User               @relation("ReceiverGoodsReceipts", fields: [receivedByUserId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  items      GoodsReceiptItem[]
+
+  @@index([orderId])
+  @@index([shipmentId])
+  @@index([receivedByUserId])
+}
+
+model GoodsReceiptItem {
+  id             Int     @id @default(autoincrement())
+  goodsReceiptId Int
+  orderItemId    Int
+  receivedQty    Decimal @db.Decimal(14, 2)
+  acceptedQty    Decimal @db.Decimal(14, 2)
+  rejectedQty    Decimal @db.Decimal(14, 2)
+  reasonCode     String?
+
+  goodsReceipt GoodsReceipt @relation(fields: [goodsReceiptId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  orderItem    OrderItem    @relation(fields: [orderItemId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([goodsReceiptId])
+  @@index([orderItemId])
+}
+
+model Shipment {
+  id               Int            @id @default(autoincrement())
+  orderId          Int
+  trackingNumber   String?
+  carrier          String?
+  estimatedArrival DateTime?
+  status           ShipmentStatus
+
+  order         Order            @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  updates       ShipmentUpdate[]
+  goodsReceipts GoodsReceipt[]
+
+  @@index([orderId])
+  @@index([status])
+}
+
+model ShipmentUpdate {
+  id         Int      @id @default(autoincrement())
+  shipmentId Int
+  status     String
+  location   String?
+  eventTime  DateTime
+  notes      String?
+
+  shipment Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([shipmentId, eventTime])
+}
+
+model Invoice {
+  id            Int           @id @default(autoincrement())
+  orderId       Int
+  invoiceNumber String        @unique
+  issueDate     DateTime
+  dueDate       DateTime?
+  currency      String        @default("AUD")
+  subtotal      Decimal       @db.Decimal(14, 2)
+  taxTotal      Decimal       @db.Decimal(14, 2)
+  total         Decimal       @db.Decimal(14, 2)
+  status        InvoiceStatus
+
+  order       Order               @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  items       InvoiceItem[]
+  allocations PaymentAllocation[]
+
+  @@index([orderId])
+  @@index([status])
+}
+
+model InvoiceItem {
+  id           Int     @id @default(autoincrement())
+  invoiceId    Int
+  orderItemId  Int?
+  description  String?
+  quantity     Decimal @db.Decimal(14, 2)
+  unitPrice    Decimal @db.Decimal(14, 2)
+  taxRate      Float
+  lineSubtotal Decimal @db.Decimal(14, 2)
+  lineTax      Decimal @db.Decimal(14, 2)
+  lineTotal    Decimal @db.Decimal(14, 2)
+
+  invoice   Invoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  orderItem OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([invoiceId])
+  @@index([orderItemId])
+}
+
+model Payment {
+  id         Int           @id @default(autoincrement())
+  buyerId    Int
+  amount     Decimal       @db.Decimal(14, 2)
+  currency   String        @default("AUD")
+  receivedAt DateTime
+  method     PaymentMethod
+  reference  String?
+  status     PaymentStatus
+
+  buyer       User                @relation("BuyerPayments", fields: [buyerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  allocations PaymentAllocation[]
+
+  @@index([buyerId, receivedAt])
+  @@index([status])
+}
+
+model PaymentAllocation {
+  id              Int      @id @default(autoincrement())
+  paymentId       Int
+  invoiceId       Int
+  amountAllocated Decimal  @db.Decimal(14, 2)
+  createdAt       DateTime @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([paymentId])
+  @@index([invoiceId])
+}
+
+model ComplianceCertificate {
+  id                Int               @id @default(autoincrement())
+  certificateNumber String            @unique
+  productId         Int?
+  supplierId        Int?
+  issuedBy          String?
+  issueDate         DateTime?
+  expiryDate        DateTime?
+  blockchainTxId    String?
+  status            CertificateStatus
+
+  product  Product?         @relation(fields: [productId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  supplier SupplierProfile? @relation(fields: [supplierId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([productId])
+  @@index([supplierId])
+  @@index([status])
+}
+
+model UserSocialAccount {
+  id             Int      @id @default(autoincrement())
+  provider       String
+  providerUserId String
+  email          String?
+  userId         Int
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([provider, providerUserId])
+  @@map("UserSocialAccount")
+}
+
+model ContractRef {
+  id              Int      @id @default(autoincrement())
+  orderId         Int      @unique
+  contractAddress String
+  transactionHash String
+  createdAt       DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@map("ContractRef")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  orderId   Int?
+  type      String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([orderId])
+}
