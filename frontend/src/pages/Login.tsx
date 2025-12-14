@@ -1,9 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+
+  // ✅ NEW: handle Google OAuth token from URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (token) {
+      // Store token (Google login)
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", "individual"); // default role for Google
+
+      // Clean URL
+      window.history.replaceState({}, document.title, "/login");
+
+      // Redirect to dashboard
+      navigate("/dashboard");
+    }
+  }, [navigate]);
 
   const [selectedRole, setSelectedRole] = useState<"individual" | "business">(
     "individual"
@@ -35,7 +53,6 @@ const Login: React.FC = () => {
         return;
       }
 
-      // ✅ Remember Me logic
       const storage = rememberMe ? localStorage : sessionStorage;
       storage.setItem("token", data.token);
       storage.setItem("role", data.role);
@@ -106,7 +123,6 @@ const Login: React.FC = () => {
             />
           </div>
 
-          {/* REMEMBER ME + FORGOT */}
           <div className="login-extra">
             <label className="remember">
               <input
