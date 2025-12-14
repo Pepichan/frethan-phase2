@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import "./Signup.css";
 
-export default function Signup() {
+
+const Signup: React.FC = () => {
+  const [selectedRole, setSelectedRole] = useState<
+    "individual" | "business"
+  >("individual");
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +26,12 @@ export default function Signup() {
       const res = await fetch("http://localhost:4000/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          role: selectedRole, // ✅ IMPORTANT
+        }),
       });
 
       const data = await res.json();
@@ -31,11 +41,10 @@ export default function Signup() {
         return;
       }
 
-      alert("Account created successfully!");
+      alert(`Account created as ${selectedRole}! Please login.`);
       window.location.href = "/login";
-
-    } catch (err) {
-      setError("Something went wrong. Try again.");
+    } catch {
+      setError("Something went wrong. Please try again.");
     }
   };
 
@@ -43,16 +52,43 @@ export default function Signup() {
     <div className="signup-wrapper">
       <div className="signup-container">
         <h2 className="title">Create an Account</h2>
-        <p className="subtitle">Join Frethan and start managing your workflow</p>
+        <p className="subtitle">
+          Join Frethan and start managing your workflow
+        </p>
 
-        {error && <p className="error-box">{error}</p>}
+        {error && <div className="error-box">{error}</div>}
 
         <form onSubmit={handleSubmit}>
+          {/* ROLE SELECTOR (SAME AS LOGIN) */}
+          <div className="role-selector">
+            <span className="role-label">Sign up as</span>
+            <div className="role-options">
+              <button
+                type="button"
+                className={`role-btn ${
+                  selectedRole === "individual" ? "active" : ""
+                }`}
+                onClick={() => setSelectedRole("individual")}
+              >
+                Buyer
+              </button>
+
+              <button
+                type="button"
+                className={`role-btn ${
+                  selectedRole === "business" ? "active" : ""
+                }`}
+                onClick={() => setSelectedRole("business")}
+              >
+                Business
+              </button>
+            </div>
+          </div>
+
           <div className="input-group">
             <label>Full Name</label>
             <input
               type="text"
-              placeholder="Your full name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -63,7 +99,6 @@ export default function Signup() {
             <label>Email Address</label>
             <input
               type="email"
-              placeholder="name@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -74,7 +109,6 @@ export default function Signup() {
             <label>Password</label>
             <input
               type="password"
-              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -85,23 +119,16 @@ export default function Signup() {
             <label>Confirm Password</label>
             <input
               type="password"
-              placeholder="Re-enter password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               required
             />
           </div>
 
-          <button type="submit" className="primary-btn">
+          <button className="primary-btn" type="submit">
             Create Account
           </button>
         </form>
-
-        <div className="divider">or sign up with</div>
-
-        <button className="social-btn google">Google</button>
-        <button className="social-btn facebook">Facebook</button>
-        <button className="social-btn wechat">WeChat (Demo)</button>
 
         <p className="signup-text">
           Already have an account? <a href="/login">Sign in</a>
@@ -109,4 +136,6 @@ export default function Signup() {
       </div>
     </div>
   );
-}
+};
+
+export default Signup;

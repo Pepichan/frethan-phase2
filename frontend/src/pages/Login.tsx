@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Login.css";
+import "../styles/Login.css";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
 
+  const [selectedRole, setSelectedRole] = useState<"individual" | "business">(
+    "individual"
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
 
-  // ----------------------------
-  // NORMAL EMAIL/PASSWORD LOGIN
-  // ----------------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -20,65 +21,77 @@ const Login: React.FC = () => {
       const res = await fetch("http://localhost:4000/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email,
+          password,
+          role: selectedRole,
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.msg || "Incorrect email or password");
+        setError(data.msg || "Invalid email or password");
         return;
       }
 
-      const token = data.token || "manual-login-token";
-      localStorage.setItem("token", token);
+      // ✅ Remember Me logic
+      const storage = rememberMe ? localStorage : sessionStorage;
+      storage.setItem("token", data.token);
+      storage.setItem("role", data.role);
 
-      navigate("/dashboard");
-    } catch (err) {
+      if (data.role === "business") {
+        navigate("/dashboard/business");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch {
       setError("Login failed. Please try again.");
     }
   };
 
-  // ----------------------------
-  // SOCIAL LOGINS
-  // ----------------------------
-
-  // Google OAuth
-  const handleGoogle = () => {
-    window.location.href = "http://localhost:4000/auth/google";
-  };
-
-  // Facebook OAuth
-  const handleFacebook = () => {
-    window.location.href = "http://localhost:4000/auth/facebook";
-  };
-
-  // Fake WeChat Demo
-  const handleWeChat = () => {
-    alert("WeChat login demo coming soon!");
-    // If later you want redirect:
-    // window.location.href = "http://localhost:4000/auth/wechat-demo";
-  };
-
-  // ----------------------------
-
   return (
     <div className="login-wrapper">
       <div className="login-container">
+        <h2 className="title">Welcome back</h2>
+        <p className="subtitle">
+          Sign in to access your procurement dashboard
+        </p>
 
-        <h2 className="title">Welcome Back</h2>
-        <p className="subtitle">Sign in to continue managing your supply chain</p>
+        {error && <div className="error-box">{error}</div>}
 
-        {error && <p className="error-box">{error}</p>}
+        <form onSubmit={handleSubmit}>
+          {/* ROLE SELECTOR */}
+          <div className="role-selector">
+            <span className="role-label">Sign in as</span>
+            <div className="role-options">
+              <button
+                type="button"
+                className={`role-btn ${
+                  selectedRole === "individual" ? "active" : ""
+                }`}
+                onClick={() => setSelectedRole("individual")}
+              >
+                Buyer
+              </button>
+              <button
+                type="button"
+                className={`role-btn ${
+                  selectedRole === "business" ? "active" : ""
+                }`}
+                onClick={() => setSelectedRole("business")}
+              >
+                Business
+              </button>
+            </div>
+          </div>
 
-        <form onSubmit={handleSubmit} className="form">
           <div className="input-group">
             <label>Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com"
               required
             />
           </div>
@@ -89,37 +102,61 @@ const Login: React.FC = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
               required
             />
           </div>
 
-          <button type="submit" className="primary-btn">
+          {/* REMEMBER ME + FORGOT */}
+          <div className="login-extra">
+            <label className="remember">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={() => setRememberMe(!rememberMe)}
+              />
+              Remember me
+            </label>
+
+            <a href="/forgot-password" className="forgot">
+              Forgot password?
+            </a>
+          </div>
+
+          <button className="primary-btn" type="submit">
             Sign In
           </button>
         </form>
 
         <div className="divider">or continue with</div>
 
-        {/* Google */}
-        <button className="social-btn google" onClick={handleGoogle}>
+        <button
+          className="social-btn google"
+          onClick={() =>
+            (window.location.href = "http://localhost:4000/auth/google")
+          }
+        >
           Continue with Google
         </button>
 
-        {/* Facebook */}
-        <button className="social-btn facebook" onClick={handleFacebook}>
+        <button
+          className="social-btn facebook"
+          onClick={() =>
+            (window.location.href = "http://localhost:4000/auth/facebook")
+          }
+        >
           Continue with Facebook
         </button>
 
-        {/* WeChat Demo */}
-        <button className="social-btn wechat" onClick={handleWeChat}>
+        <button
+          className="social-btn wechat"
+          onClick={() => alert("WeChat login (demo)")}
+        >
           Continue with WeChat (Demo)
         </button>
 
         <p className="signup-text">
-          Don’t have an account? <a href="/signup">Create one</a>
+          Don’t have an account? <a href="/signup">Sign up</a>
         </p>
-
       </div>
     </div>
   );
