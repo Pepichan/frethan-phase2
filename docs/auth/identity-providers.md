@@ -1,14 +1,14 @@
 # Identity Providers (OAuth)
 
-This document describes the OAuth login flow for **Google** (plus a **WeChat demo placeholder**).
-
-Facebook OAuth is added in the follow-up task/branch.
+This document describes the OAuth login flows for **Google** and **Facebook** (plus a **WeChat demo placeholder**).
 
 ## 1) Endpoints
 
 Backend routes (Express):
 - `GET /api/auth/google` → redirects to Google consent
 - `GET /api/auth/google/callback` → exchanges code, links user, issues JWT, redirects to frontend
+- `GET /api/auth/facebook` → redirects to Facebook consent
+- `GET /api/auth/facebook/callback` → exchanges code, links user, issues JWT, redirects to frontend
 - `GET /api/auth/me` → returns current user (requires `Authorization: Bearer <jwt>`)
 
 Frontend route (React):
@@ -57,13 +57,24 @@ Current behavior:
 - `email`
 - `profile`
 
-## 4) WeChat (demo)
+## 4) Facebook OAuth
+
+### Flow
+1. Frontend starts login by navigating to: `GET /api/auth/facebook`
+2. Facebook calls back to: `GET /api/auth/facebook/callback?code=...&state=...`
+3. Backend exchanges code for an access token, fetches `/me` (id/email), links user, redirects with `?token=...`
+
+### Suggested scopes
+- `email`
+- `public_profile`
+
+## 5) WeChat (demo)
 
 WeChat OAuth setup differs (QR login is common). For W4 we treat it as a demo:
 - Frontend shows a "QR demo" label
 - Backend exposes the same placeholder endpoints: `/api/auth/wechat` and `/api/auth/wechat/callback`
 
-## 5) Environment variables
+## 6) Environment variables
 
 Required:
 - `JWT_SECRET`
@@ -77,12 +88,18 @@ Google:
 - `GOOGLE_REDIRECT_URI=http://localhost:5000/api/auth/google/callback`
 - `GOOGLE_SCOPES=openid,email,profile`
 
-## 6) Local Dev Quick Test
+Facebook:
+- `FACEBOOK_APP_ID`
+- `FACEBOOK_APP_SECRET`
+- `FACEBOOK_REDIRECT_URI=http://localhost:5000/api/auth/facebook/callback`
+- `FACEBOOK_SCOPES=email,public_profile`
+
+## 7) Local Dev Quick Test
 
 1. Start backend: `cd backend; npm run dev`
 2. Start frontend: `cd frontend; npm run dev`
 3. Open `http://localhost:5173/login`
-4. Click "Continue with Google"
+4. Click "Continue with Google" or "Continue with Facebook"
 
 Expected:
 - Browser navigates through provider login, then returns to `/oauth/callback`

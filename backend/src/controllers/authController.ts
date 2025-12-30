@@ -209,12 +209,6 @@ export const oauthStart = (provider: OAuthProvider) => {
       return;
     }
 
-    // Google is implemented in this branch. Facebook is added in a follow-up branch.
-    if (provider === "facebook") {
-      res.status(501).json({ status: "not_implemented", provider });
-      return;
-    }
-
     try {
       const state = newState(provider);
 
@@ -243,8 +237,20 @@ export const oauthStart = (provider: OAuthProvider) => {
         return;
       }
 
-      // unreachable (facebook handled above)
-      res.status(501).json({ status: "not_implemented", provider });
+      const appId = getEnv("FACEBOOK_APP_ID");
+      const redirectUri =
+        getEnvOptional("FACEBOOK_REDIRECT_URI") ||
+        "http://localhost:5000/api/auth/facebook/callback";
+      const scope = getEnvOptional("FACEBOOK_SCOPES") || "email,public_profile";
+
+      const url = new URL("https://www.facebook.com/v19.0/dialog/oauth");
+      url.searchParams.set("client_id", appId);
+      url.searchParams.set("redirect_uri", redirectUri);
+      url.searchParams.set("response_type", "code");
+      url.searchParams.set("scope", scope.split(",").join(","));
+      url.searchParams.set("state", state);
+
+      res.redirect(302, url.toString());
     } catch (error) {
       console.error("oauthStart error:", error);
       redirectToFrontend(res, { error: "oauth_start_failed" });
@@ -255,12 +261,6 @@ export const oauthStart = (provider: OAuthProvider) => {
 export const oauthCallback = (provider: OAuthProvider) => {
   return async (req: Request, res: Response) => {
     if (provider === "wechat") {
-      res.status(501).json({ status: "not_implemented", provider });
-      return;
-    }
-
-    // Google is implemented in this branch. Facebook is added in a follow-up branch.
-    if (provider === "facebook") {
       res.status(501).json({ status: "not_implemented", provider });
       return;
     }
@@ -349,8 +349,63 @@ export const oauthCallback = (provider: OAuthProvider) => {
         return;
       }
 
-      // unreachable (facebook handled above)
-      res.status(501).json({ status: "not_implemented", provider });
+      // Facebook
+      const appId = getEnv("FACEBOOK_APP_ID");
+      const appSecret = getEnv("FACEBOOK_APP_SECRET");
+      const redirectUri =
+        getEnvOptional("FACEBOOK_REDIRECT_URI") ||
+        "http://localhost:5000/api/auth/facebook/callback";
+
+      const accessTokenRes = await axios.get(
+        "https://graph.facebook.com/v19.0/oauth/access_token",
+        {
+          params: {
+            client_id: appId,
+            client_secret: appSecret,
+            redirect_uri: redirectUri,
+            code,
+          },
+        }
+      );
+
+      const accessToken =
+        typeof accessTokenRes.data?.access_token === "string"
+          ? accessTokenRes.data.access_token
+          : null;
+
+      if (!accessToken) {
+        console.info("auth.oauth.callback", { provider, result: "missing_facebook_access_token" });
+        redirectToFrontend(res, { error: "missing_facebook_access_token" });
+        return;
+      }
+
+      const meRes = await axios.get("https://graph.facebook.com/me", {
+        params: { fields: "id,email", access_token: accessToken },
+      });
+
+      const providerUserId = typeof meRes.data?.id === "string" ? meRes.data.id : null;
+      const email = typeof meRes.data?.email === "string" ? meRes.data.email : undefined;
+
+      if (!providerUserId) {
+        console.info("auth.oauth.callback", { provider, result: "invalid_facebook_profile" });
+        redirectToFrontend(res, { error: "invalid_facebook_profile" });
+        return;
+      }
+
+      const user = await linkOrCreateUserForSocial({
+        provider: "facebook",
+        providerUserId,
+        email,
+      });
+
+      console.info("auth.oauth.callback", {
+        provider,
+        result: "success",
+        userId: user.id,
+        hasEmail: Boolean(email),
+      });
+      const token = issueJwt(user.id);
+      redirectToFrontend(res, { token });
     } catch (error) {
       console.error("oauthCallback error:", error);
       console.info("auth.oauth.callback", { provider, result: "exception" });
