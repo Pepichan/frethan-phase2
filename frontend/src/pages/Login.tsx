@@ -5,6 +5,9 @@ import "../styles/Login.css";
 const Login: React.FC = () => {
   const navigate = useNavigate();
 
+  const params = new URLSearchParams(window.location.search);
+  const oauthError = params.get("oauthError");
+
   const [selectedRole, setSelectedRole] = useState<"individual" | "business">(
     "individual"
   );
@@ -12,41 +15,59 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
+  const [oauthStatus, setOauthStatus] = useState<
+    | { status: "idle" }
+    | { status: "loading"; provider: "google" | "facebook" | "wechat" }
+    | { status: "error"; message: string }
+  >({ status: "idle" });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setOauthStatus({ status: "idle" });
 
     try {
-      const res = await fetch("http://localhost:4000/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-          role: selectedRole,
-        }),
+        body: JSON.stringify({ email, password, role: selectedRole }),
       });
 
-      const data = await res.json();
+      const data = await res
+        .json()
+        .catch(() => ({ token: null, role: null }));
 
-      if (!res.ok) {
-        setError(data.msg || "Invalid email or password");
+      const token = typeof data?.token === "string" ? data.token : null;
+      const role = typeof data?.role === "string" ? data.role : selectedRole;
+
+      if (!token) {
+        setError("Login endpoint did not return a token (not implemented yet)");
         return;
       }
 
-      // ✅ Remember Me logic
       const storage = rememberMe ? localStorage : sessionStorage;
-      storage.setItem("token", data.token);
-      storage.setItem("role", data.role);
-
-      if (data.role === "business") {
-        navigate("/dashboard/business");
-      } else {
-        navigate("/dashboard");
-      }
+      storage.setItem("token", token);
+      storage.setItem("role", role);
+      navigate("/dashboard");
     } catch {
-      setError("Login failed. Please try again.");
+      setError("Login failed (endpoint not implemented yet)");
+    }
+  };
+
+  const handleOAuth = async (provider: "google" | "facebook" | "wechat") => {
+    setError("");
+    setOauthStatus({ status: "loading", provider });
+
+    try {
+      // Redirect-based OAuth flow: backend sends user to provider, then back to /oauth/callback.
+      // Use Vite proxy by keeping the URL relative.
+      window.location.assign(`/api/auth/${provider}`);
+    } catch (e: any) {
+      const msg =
+        typeof e?.message === "string"
+          ? e.message
+          : "OAuth failed. Please try again.";
+      setOauthStatus({ status: "error", message: msg });
     }
   };
 
@@ -58,7 +79,11 @@ const Login: React.FC = () => {
           Sign in to access your procurement dashboard
         </p>
 
+        {oauthError && <div className="error-box">{oauthError}</div>}
         {error && <div className="error-box">{error}</div>}
+        {oauthStatus.status === "error" && (
+          <div className="error-box">{oauthStatus.message}</div>
+        )}
 
         <form onSubmit={handleSubmit}>
           {/* ROLE SELECTOR */}
@@ -131,27 +156,36 @@ const Login: React.FC = () => {
 
         <button
           className="social-btn google"
-          onClick={() =>
-            (window.location.href = "http://localhost:4000/auth/google")
-          }
+          type="button"
+          disabled={oauthStatus.status === "loading"}
+          onClick={() => handleOAuth("google")}
         >
-          Continue with Google
+          {oauthStatus.status === "loading" && oauthStatus.provider === "google"
+            ? "Connecting to Google…"
+            : "Continue with Google"}
         </button>
 
         <button
           className="social-btn facebook"
-          onClick={() =>
-            (window.location.href = "http://localhost:4000/auth/facebook")
-          }
+          type="button"
+          disabled={oauthStatus.status === "loading"}
+          onClick={() => handleOAuth("facebook")}
         >
-          Continue with Facebook
+          {oauthStatus.status === "loading" &&
+          oauthStatus.provider === "facebook"
+            ? "Connecting to Facebook…"
+            : "Continue with Facebook"}
         </button>
 
         <button
           className="social-btn wechat"
-          onClick={() => alert("WeChat login (demo)")}
+          type="button"
+          disabled={oauthStatus.status === "loading"}
+          onClick={() => handleOAuth("wechat")}
         >
-          Continue with WeChat (Demo)
+          {oauthStatus.status === "loading" && oauthStatus.provider === "wechat"
+            ? "Opening WeChat QR demo…"
+            : "Continue with WeChat (QR demo)"}
         </button>
 
         <p className="signup-text">
