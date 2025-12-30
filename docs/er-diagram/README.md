@@ -13,6 +13,8 @@ It serves as the **source of truth** for all Prisma models, PostgreSQL database 
 
 **`frethan-er-v3.png`** : Updated with Payment + Notification tables (W6)
 
+**`frethan-er-v4.mmd`** : Quick Mermaid ER snapshot focusing on W4 core relations
+
 ---
 
 ## 🧠 2. Overview of the Data Model
@@ -115,6 +117,7 @@ Follow this process whenever the database structure changes:
 - v1 – Initial procurement workflow (User, RFQ, Quote, Order, Shipment, Invoice, Payment, etc.)
 - v2 – Added OAuth social login and ContractRef for blockchain contracts.
 - v3 – Added Notification table and relations to User and Order (W6).
+- v4 – Added a quick Mermaid snapshot for core relations (W4).
 
 
 

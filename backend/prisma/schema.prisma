@@ -98,30 +98,30 @@ model Role {
 }
 
 model User {
-  id           Int        @id @default(autoincrement())
-  roleId       Int
-  firstName    String
-  lastName     String
-  userEmail    String     @unique
-  passwordHash String?
-  phone        String?
-  addresses    Json?      @db.Json
-  status       UserStatus @default(ACTIVE)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id                  Int        @id @default(autoincrement())
+  roleId              Int
+  firstName           String
+  lastName            String
+  userEmail           String     @unique
+  passwordHash        String?
+  phone               String?
+  addresses           Json?      @db.Json
+  status              UserStatus @default(ACTIVE)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
   resetToken          String? // ランダムトークン
   resetTokenExpiresAt DateTime? // 有効期限
-  failedLoginAttempts Int       @default(0)
+  failedLoginAttempts Int        @default(0)
   lockoutUntil        DateTime?
 
-  role            Role             @relation(fields: [roleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  role            Role                @relation(fields: [roleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   supplierProfile SupplierProfile?
   rfqs            RFQ[]               @relation("BuyerRFQs")
   orders          Order[]             @relation("BuyerOrders")
   payments        Payment[]           @relation("BuyerPayments")
   goodsReceipts   GoodsReceipt[]      @relation("ReceiverGoodsReceipts")
   socialAccounts  UserSocialAccount[]
-  notifications Notification[]
+  notifications   Notification[]
 }
 
 model SupplierProfile {
@@ -160,7 +160,7 @@ model Product {
   id             Int     @id @default(autoincrement())
   supplierId     Int
   categoryId     Int
-  productName   String
+  productName    String
   description    String?
   specifications String?
   unit           String
@@ -479,7 +479,7 @@ model Notification {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  user  User  @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  user  User   @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   @@index([userId, createdAt])

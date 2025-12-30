@@ -1,0 +1,25 @@
+erDiagram
+  User ||--o{ UserSocialAccount : has
+  User ||--o| SupplierProfile : owns
+  User ||--o{ RFQ : creates
+  User ||--o{ Order : places
+  User ||--o{ Payment : makes
+
+  SupplierProfile ||--o{ Product : lists
+  SupplierProfile ||--o{ Quote : submits
+  SupplierProfile ||--o{ Order : fulfills
+
+  RFQ ||--o{ RFQItem : contains
+  RFQ ||--o{ Quote : receives
+
+  Quote ||--o{ QuoteItem : contains
+  Quote ||--o{ Order : becomes
+
+  Order ||--o{ OrderItem : contains
+  Order ||--o| ContractRef : has
+
+  Payment ||--o{ PaymentAllocation : allocates
+  Invoice ||--o{ PaymentAllocation : receives
+
+  Order ||--o{ Notification : triggers
+  User ||--o{ Notification : receives

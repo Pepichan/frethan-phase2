@@ -142,10 +142,10 @@ vite.config.ts.timestamp-*
 # Frethan Project (Phase 2) – Custom Additions
 # ────────────────────────────────────────────────
 
-# Prisma
-prisma/dev.db
-prisma/migrations/
-prisma/generated/
+# Prisma (only if a root-level /prisma exists)
+/prisma/dev.db
+/prisma/migrations/
+/prisma/generated/
 
 # Environment variables
 .env.local

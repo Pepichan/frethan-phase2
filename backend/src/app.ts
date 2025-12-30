@@ -3,9 +3,16 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { PrismaClient } from '@prisma/client';
+import swaggerUi from 'swagger-ui-express';
+
+import { swaggerSpec } from './swagger';
 
 // Import routes
 import userRoutes from './routes/userRoutes';
+import authRoutes from './routes/authRoutes';
+import supplierRoutes from './routes/supplierRoutes';
+import rfqRoutes from './routes/rfqRoutes';
+import orderRoutes from './routes/orderRoutes';
 
 // TODO: Later move Prisma client to a separate config file (e.g. src/config/prisma.ts)
 const app = express();
@@ -20,6 +27,16 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/suppliers', supplierRoutes);
+app.use('/api/rfqs', rfqRoutes);
+app.use('/api/orders', orderRoutes);
+
+// Swagger UI
+app.get('/api-docs.json', (_req, res) => {
+  res.json(swaggerSpec);
+});
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -30,8 +47,8 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Test database connection
-if (process.env.NODE_ENV === 'development') {
+// Test database connection (enabled for local dev by default)
+if (process.env.NODE_ENV !== 'production') {
   app.get('/api/test-db', async (req, res) => {
     try {
       await prisma.$queryRaw`SELECT 1`;
