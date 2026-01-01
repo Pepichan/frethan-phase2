@@ -3,12 +3,17 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { PrismaClient } from '@prisma/client';
+import swaggerUi from "swagger-ui-express";
+import { openapiSpec } from "./openapi";
 
 // Import routes
 import userRoutes from './routes/userRoutes';
 import authRoutes from './routes/authRoutes';
 import rfqRoutes from './routes/rfqRoutes';
 import quoteRoutes from './routes/quoteRoutes';
+import orderRoutes from "./routes/orderRoutes";
+import notificationRoutes from "./routes/notificationRoutes";
+import { errorHandler, notFound } from "./middleware/errorMiddleware";
 
 // TODO: Later move Prisma client to a separate config file (e.g. src/config/prisma.ts)
 const app = express();
@@ -26,6 +31,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/rfqs', rfqRoutes);
 app.use('/api/quotes', quoteRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -35,6 +42,12 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+app.get("/api/openapi.json", (req, res) => {
+  res.status(200).json(openapiSpec);
+});
+
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(openapiSpec));
 
 // Test database connection
 if (process.env.NODE_ENV === 'development') {
@@ -55,21 +68,7 @@ if (process.env.NODE_ENV === 'development') {
   });
 }
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    status: 'Error',
-    message: `Route ${req.originalUrl} not found`
-  });
-});
-
-// Error handling middleware
-app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', error);
-  res.status(500).json({
-    status: 'Error',
-    message: 'Internal server error'
-  });
-});
+app.use(notFound);
+app.use(errorHandler);
 
 export default app;
