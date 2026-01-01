@@ -54,6 +54,26 @@ export const openapiSpec = {
   security: [{ bearerAuth: [] }],
   paths: {
     "/orders": {
+      get: {
+        summary: "List orders for current user (RBAC)",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "status",
+            in: "query",
+            required: false,
+            schema: {
+              type: "string",
+              enum: ["PENDING", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED"],
+            },
+          },
+        ],
+        responses: {
+          "200": { description: "OK" },
+          "401": { description: "Unauthorized" },
+          "403": { description: "Forbidden" },
+        },
+      },
       post: {
         summary: "Create order (Buyer/Admin)",
         security: [{ bearerAuth: [] }],
@@ -93,6 +113,36 @@ export const openapiSpec = {
       },
       put: {
         summary: "Update order (Supplier status update / Admin update)",
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  status: {
+                    type: "string",
+                    enum: ["PENDING", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED"],
+                  },
+                  totalAmount: { type: ["string", "number"] },
+                  currency: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "OK" },
+          "400": { description: "Bad request" },
+          "401": { description: "Unauthorized" },
+          "403": { description: "Forbidden" },
+          "404": { description: "Not found" },
+        },
+      },
+      patch: {
+        summary: "Update order (PATCH alias)",
         security: [{ bearerAuth: [] }],
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
         requestBody: {

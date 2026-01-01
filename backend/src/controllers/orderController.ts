@@ -114,6 +114,69 @@ const CreateOrderSchema = z.object({
   ),
 });
 
+const ListOrdersQuerySchema = z.object({
+  status: z.string().optional(),
+});
+
+export const listOrders = async (req: Request, res: Response) => {
+  const authUserId = req.auth?.userId;
+  if (!authUserId) {
+    res.status(401).json({ status: "error", message: "Missing JWT" });
+    return;
+  }
+
+  const ctx = await getUserContext(authUserId);
+  if (!ctx) {
+    res.status(401).json({ status: "error", message: "Unauthorized" });
+    return;
+  }
+
+  const parsedQuery = ListOrdersQuerySchema.safeParse(req.query);
+  if (!parsedQuery.success) {
+    res.status(400).json({ status: "error", message: "invalid_query" });
+    return;
+  }
+
+  const statusFilter = parsedQuery.data.status ? String(parsedQuery.data.status).toUpperCase() : undefined;
+
+  const where: any = {};
+  if (isAdmin(ctx.role)) {
+    // no-op
+  } else if (isBuyer(ctx.role)) {
+    where.buyerId = authUserId;
+  } else if (isSupplier(ctx.role)) {
+    if (!ctx.supplierProfileId) {
+      res.status(403).json({ status: "error", message: "Forbidden" });
+      return;
+    }
+    where.supplierId = ctx.supplierProfileId;
+  } else {
+    res.status(403).json({ status: "error", message: "Forbidden" });
+    return;
+  }
+
+  if (statusFilter) {
+    where.status = statusFilter;
+  }
+
+  try {
+    const orders = await prisma.order.findMany({
+      where,
+      orderBy: { orderDate: "desc" },
+      include: {
+        supplier: { select: { id: true, companyName: true } },
+        buyer: { select: { id: true, userEmail: true, firstName: true, lastName: true } },
+        quote: { select: { id: true, rfqId: true, totalPrice: true, currency: true, status: true } },
+      },
+    });
+
+    res.status(200).json({ status: "ok", orders });
+  } catch (error) {
+    console.error("orders.list.error", error);
+    res.status(500).json({ status: "error", message: "failed_to_list_orders" });
+  }
+};
+
 export const createOrder = async (req: Request, res: Response) => {
   const authUserId = req.auth?.userId;
   if (!authUserId) {

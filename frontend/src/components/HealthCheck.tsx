@@ -24,9 +24,12 @@ export default function HealthCheck() {
         if (cancelled) return;
         const msg = typeof res.data?.message === "string" ? res.data.message : undefined;
         setState({ status: "ok", message: msg });
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (cancelled) return;
-        const msg = typeof e?.message === "string" ? e.message : "Failed to reach backend /api/health";
+        const msg =
+          typeof (e as { message?: unknown } | null)?.message === "string"
+            ? String((e as { message?: unknown }).message)
+            : "Failed to reach backend /api/health";
         setState({ status: "error", message: msg });
       }
     };

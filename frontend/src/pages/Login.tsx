@@ -62,10 +62,10 @@ const Login: React.FC = () => {
       // Redirect-based OAuth flow: backend sends user to provider, then back to /oauth/callback.
       // Use Vite proxy by keeping the URL relative.
       window.location.assign(`/api/auth/${provider}`);
-    } catch (e: any) {
+    } catch (e: unknown) {
       const msg =
-        typeof e?.message === "string"
-          ? e.message
+        typeof (e as { message?: unknown } | null)?.message === "string"
+          ? String((e as { message?: unknown }).message)
           : "OAuth failed. Please try again.";
       setOauthStatus({ status: "error", message: msg });
     }
