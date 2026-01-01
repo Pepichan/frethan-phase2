@@ -10,7 +10,8 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Dashboard from "./pages/Dashboard";
-import Order from "./pages/Order";
+import OrderDashboard from "./pages/OrderDashboard";
+import OrderDetail from "./pages/OrderDetail";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import SupplierList from "./pages/SupplierList";
@@ -39,7 +40,23 @@ const App: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/order" element={<Order />} />
+          <Route
+            path="/order"
+            element={
+              <ProtectedRoute>
+                <OrderDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/order/:id"
+            element={
+              <ProtectedRoute>
+                <OrderDetail />
+              </ProtectedRoute>
+            }
+          />
 
           <Route path="/rfq" element={<RFQ />} />
 
