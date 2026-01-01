@@ -17,6 +17,9 @@ src/generated/prisma
 # logs
 *.log
 
+# Postman generated env
+postman/*.generated.postman_environment.json
+
 # OS junk
 .DS_Store
 Thumbs.db

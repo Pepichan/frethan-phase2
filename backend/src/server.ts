@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import app from './app';
 import { prisma } from './app';
 
@@ -11,10 +13,10 @@ const startServer = async () => {
 
     // Start server
     app.listen(PORT, () => {
-      console.log(`íº€ Server running on port ${PORT}`);
-      console.log(`í³Š Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`í´— Health check: http://localhost:${PORT}/api/health`);
-      console.log(`í·„ï¸  DB test: http://localhost:${PORT}/api/test-db`);
+      console.log(`ï¿½ï¿½ï¿½ Server running on port ${PORT}`);
+      console.log(`ï¿½ï¿½ï¿½ Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`ï¿½ï¿½ï¿½ Health check: http://localhost:${PORT}/api/health`);
+      console.log(`ï¿½ï¿½ï¿½ï¸  DB test: http://localhost:${PORT}/api/test-db`);
     });
   } catch (error) {
     console.error('âŒ Failed to start server:', error);
@@ -24,13 +26,13 @@ const startServer = async () => {
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  console.log('í»‘ Shutting down gracefully...');
+  console.log('ï¿½ï¿½ï¿½ Shutting down gracefully...');
   await prisma.$disconnect();
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-  console.log('í»‘ Shutting down gracefully...');
+  console.log('ï¿½ï¿½ï¿½ Shutting down gracefully...');
   await prisma.$disconnect();
   process.exit(0);
 });

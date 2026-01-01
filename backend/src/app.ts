@@ -6,6 +6,9 @@ import { PrismaClient } from '@prisma/client';
 
 // Import routes
 import userRoutes from './routes/userRoutes';
+import authRoutes from './routes/authRoutes';
+import rfqRoutes from './routes/rfqRoutes';
+import quoteRoutes from './routes/quoteRoutes';
 
 // TODO: Later move Prisma client to a separate config file (e.g. src/config/prisma.ts)
 const app = express();
@@ -20,6 +23,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/rfqs', rfqRoutes);
+app.use('/api/quotes', quoteRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
