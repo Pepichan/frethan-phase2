@@ -89,14 +89,14 @@ export const submitQuote = async (req: Request, res: Response) => {
         supplierId,
         currency,
         validityUntil,
-        totalPrice: total as any,
+        totalPrice: total.toFixed(2),
         status: "PENDING",
         items: {
           create: quoteItems.map((it) => ({
             rfqItemId: it.rfqItemId,
-            unitPrice: it.unitPrice as any,
-            quantity: it.quantity as any,
-            subtotal: it.subtotal as any,
+            unitPrice: it.unitPrice.toFixed(2),
+            quantity: it.quantity.toFixed(2),
+            subtotal: it.subtotal.toFixed(2),
           })),
         },
       },

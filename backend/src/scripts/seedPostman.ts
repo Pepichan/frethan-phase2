@@ -60,7 +60,7 @@ async function main() {
       currency: "AUD",
       notes: "Seeded RFQ",
       items: {
-        create: [{ description: "Steel rods", quantity: 10 as any, unit: "pcs" }],
+        create: [{ description: "Steel rods", quantity: "10", unit: "pcs" }],
       },
     },
     include: { items: true },

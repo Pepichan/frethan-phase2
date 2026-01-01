@@ -41,7 +41,7 @@ export const createRfq = async (req: Request, res: Response) => {
         items: {
           create: items.map((it) => ({
             description: String(it.description ?? "").trim(),
-            quantity: it.quantity as any,
+            quantity: String(it.quantity),
             unit: String(it.unit ?? "").trim(),
             productId: it.productId ?? null,
           })),
@@ -123,7 +123,7 @@ export const addRfqItem = async (req: Request, res: Response) => {
         rfqId,
         description,
         unit,
-        quantity: body.quantity as any,
+        quantity: String(body.quantity),
         productId: body.productId ?? null,
       },
     });
