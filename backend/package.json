@@ -12,7 +12,8 @@
     "postman:seed": "ts-node src/scripts/seedPostman.ts > postman/frethan.local.generated.postman_environment.json",
     "postman:newman": "newman run postman/rfq-quote.postman_collection.json -e postman/frethan.local.generated.postman_environment.json",
     "prepostman:e2e": "npm run postman:seed",
-    "postman:e2e": "start-server-and-test dev http://localhost:5000/api/health postman:newman"
+    "postman:e2e": "start-server-and-test dev http://localhost:5000/api/health postman:newman",
+    "seed:qa:w6": "ts-node src/scripts/seedQaW6.ts"
   },
   "dependencies": {
     "axios": "^1.12.2",
