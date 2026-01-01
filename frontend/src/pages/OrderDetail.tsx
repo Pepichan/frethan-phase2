@@ -11,11 +11,11 @@ type Order = {
   id: number;
   status: OrderStatus;
   orderDate: string;
-  totalAmount: any;
+  totalAmount: unknown;
   currency: string;
   supplier?: { id: number; companyName: string };
   buyer?: { id: number; userEmail: string; firstName: string; lastName: string };
-  quote?: { id: number; rfqId: number; totalPrice: any; currency: string; status: string };
+  quote?: { id: number; rfqId: number; totalPrice: unknown; currency: string; status: string };
 };
 
 type OrderResponse = { status: string; order: Order };
@@ -25,7 +25,7 @@ type MeResponse = {
   user: { id: number; email: string; firstName: string; lastName: string; role: string };
 };
 
-const formatMoney = (amount: any, currency: string) => {
+const formatMoney = (amount: unknown, currency: string) => {
   const n = Number(amount);
   if (!Number.isFinite(n)) return `${amount ?? "-"} ${currency}`;
   return `${n.toFixed(2)} ${currency}`;
@@ -72,8 +72,12 @@ export default function OrderDetail() {
 
       setRole(meRes.data.user?.role ?? null);
       setOrder(orderRes.data.order);
-    } catch (e: any) {
-      setError(typeof e?.message === "string" ? e.message : "Failed to load order");
+    } catch (e: unknown) {
+      const msg =
+        typeof (e as { message?: unknown } | null)?.message === "string"
+          ? String((e as { message?: unknown }).message)
+          : "Failed to load order";
+      setError(msg);
       setOrder(null);
     }
   };
@@ -109,8 +113,12 @@ export default function OrderDetail() {
       setError(null);
       await api.patch(`/api/orders/${order.id}`, { status: next });
       await load();
-    } catch (e: any) {
-      setError(typeof e?.message === "string" ? e.message : "Failed to update status");
+    } catch (e: unknown) {
+      const msg =
+        typeof (e as { message?: unknown } | null)?.message === "string"
+          ? String((e as { message?: unknown }).message)
+          : "Failed to update status";
+      setError(msg);
     } finally {
       setUpdating(false);
     }

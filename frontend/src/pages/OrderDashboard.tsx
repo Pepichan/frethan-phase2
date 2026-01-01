@@ -11,7 +11,7 @@ type OrderListItem = {
   id: number;
   status: OrderStatus;
   orderDate: string;
-  totalAmount: any;
+  totalAmount: unknown;
   currency: string;
   supplier?: { id: number; companyName: string };
   buyer?: { id: number; userEmail: string; firstName: string; lastName: string };
@@ -38,7 +38,7 @@ type Filter = "pending" | "completed";
 
 const isCompleted = (status: OrderStatus) => String(status).toUpperCase() === "COMPLETED";
 
-const formatMoney = (amount: any, currency: string) => {
+const formatMoney = (amount: unknown, currency: string) => {
   const n = Number(amount);
   if (!Number.isFinite(n)) return `${amount ?? "-"} ${currency}`;
   return `${n.toFixed(2)} ${currency}`;
@@ -62,39 +62,43 @@ export default function OrderDashboard() {
 
   const token = localStorage.getItem("token");
 
-  const loadOrders = async () => {
+  const loadOrders = React.useCallback(async () => {
     try {
       setOrdersError(null);
       const res = await api.get<OrdersResponse>("/api/orders");
       setOrders(res.data.orders ?? []);
-    } catch (e: any) {
-      setOrdersError(typeof e?.message === "string" ? e.message : "Failed to load orders");
+    } catch (e: unknown) {
+      const msg =
+        typeof (e as { message?: unknown } | null)?.message === "string"
+          ? String((e as { message?: unknown }).message)
+          : "Failed to load orders";
+      setOrdersError(msg);
       setOrders([]);
     }
-  };
+  }, []);
 
-  const loadNotifications = async () => {
+  const loadNotifications = React.useCallback(async () => {
     try {
       setNotifError(null);
       const res = await api.get<NotificationsResponse>("/api/notifications?limit=10");
       setNotifications(res.data.notifications ?? []);
       setUnreadCount(Number(res.data.unreadCount ?? 0));
-    } catch (e: any) {
-      setNotifError(typeof e?.message === "string" ? e.message : "Failed to load notifications");
+    } catch (e: unknown) {
+      const msg =
+        typeof (e as { message?: unknown } | null)?.message === "string"
+          ? String((e as { message?: unknown }).message)
+          : "Failed to load notifications";
+      setNotifError(msg);
       setNotifications([]);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (!token) return;
 
-    let cancelled = false;
-    const run = async () => {
-      await Promise.all([loadOrders(), loadNotifications()]);
-      if (cancelled) return;
-    };
-
-    run();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadOrders();
+    loadNotifications();
 
     const interval = window.setInterval(() => {
       loadNotifications();
@@ -102,11 +106,9 @@ export default function OrderDashboard() {
     }, 10_000);
 
     return () => {
-      cancelled = true;
       window.clearInterval(interval);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, [token, loadNotifications, loadOrders]);
 
   const filteredOrders = useMemo(() => {
     const list = orders ?? [];
@@ -118,8 +120,12 @@ export default function OrderDashboard() {
     try {
       await api.patch("/api/notifications/" + id + "/read", {});
       await loadNotifications();
-    } catch (e: any) {
-      setNotifError(typeof e?.message === "string" ? e.message : "Failed to mark notification as read");
+    } catch (e: unknown) {
+      const msg =
+        typeof (e as { message?: unknown } | null)?.message === "string"
+          ? String((e as { message?: unknown }).message)
+          : "Failed to mark notification as read";
+      setNotifError(msg);
     }
   };
 

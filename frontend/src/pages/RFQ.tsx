@@ -3,22 +3,22 @@ import React, { useEffect, useMemo, useState } from "react";
 type RfqItem = {
   id: number;
   description: string;
-  quantity: any;
+  quantity: unknown;
   unit: string;
 };
 
 type QuoteItem = {
   id: number;
   rfqItemId: number;
-  unitPrice: any;
-  quantity: any;
-  subtotal: any;
+  unitPrice: unknown;
+  quantity: unknown;
+  subtotal: unknown;
 };
 
 type Quote = {
   id: number;
   supplierId: number;
-  totalPrice: any;
+  totalPrice: unknown;
   currency: string;
   status: string;
   createdAt: string;
@@ -65,18 +65,19 @@ export default function RFQ() {
   };
 
   useEffect(() => {
-    loadRfqs().catch((e) => console.error(e));
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadRfqs().catch((e: unknown) => console.error(e));
   }, []);
 
   useEffect(() => {
     if (!selectedRfqId) {
-      setSelectedRfq(null);
       return;
     }
-    loadRfqDetail(selectedRfqId).catch((e) => console.error(e));
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadRfqDetail(selectedRfqId).catch((e: unknown) => console.error(e));
   }, [selectedRfqId]);
 
-  const selectedItems = selectedRfq?.items ?? [];
+  const selectedItems = useMemo(() => selectedRfq?.items ?? [], [selectedRfq]);
 
   const computedTotal = useMemo(() => {
     if (!selectedRfq) return null;
@@ -90,6 +91,12 @@ export default function RFQ() {
     }
     return total;
   }, [selectedRfq, selectedItems, unitPriceByItemId]);
+
+  const onSelectRfq = async (id: number) => {
+    setSelectedRfqId(id);
+    setSelectedRfq(null);
+    await loadRfqDetail(id);
+  };
 
   const onCreateRfq = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,7 +205,7 @@ export default function RFQ() {
           <ul>
             {rfqs.map((r) => (
               <li key={r.id}>
-                <button type="button" onClick={() => setSelectedRfqId(r.id)}>
+                <button type="button" onClick={() => void onSelectRfq(r.id)}>
                   #{r.id} ({r.status}) - {r.items?.length ?? 0} items
                 </button>
               </li>

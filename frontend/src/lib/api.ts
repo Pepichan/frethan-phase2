@@ -1,5 +1,14 @@
 export type ApiResponse<T> = { data: T };
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const getMessageFromUnknown = (value: unknown): string | null => {
+  if (!isRecord(value)) return null;
+  const msg = value["message"];
+  return typeof msg === "string" ? msg : null;
+};
+
 const withAuthHeaders = (headers: HeadersInit | undefined): HeadersInit => {
   const token = localStorage.getItem("token");
   if (!token) return headers ?? {};
@@ -20,10 +29,11 @@ async function requestJson<T>(input: RequestInfo | URL, init?: RequestInit): Pro
 
   const contentType = res.headers.get("content-type") ?? "";
   const isJson = contentType.includes("application/json");
-  const data = (isJson ? await res.json() : undefined) as T;
+  const parsed: unknown = isJson ? await res.json() : undefined;
+  const data = parsed as T;
 
   if (!res.ok) {
-    const message = typeof (data as any)?.message === "string" ? (data as any).message : `HTTP ${res.status}`;
+    const message = getMessageFromUnknown(parsed) ?? `HTTP ${res.status}`;
     throw new Error(message);
   }
 
@@ -31,8 +41,8 @@ async function requestJson<T>(input: RequestInfo | URL, init?: RequestInit): Pro
 }
 
 export const api = {
-  get: <T = any>(url: string, init?: RequestInit) => requestJson<T>(url, { ...init, method: "GET" }),
-  post: <T = any>(url: string, body?: unknown, init?: RequestInit) =>
+  get: <T = unknown>(url: string, init?: RequestInit) => requestJson<T>(url, { ...init, method: "GET" }),
+  post: <T = unknown>(url: string, body?: unknown, init?: RequestInit) =>
     requestJson<T>(url, {
       ...init,
       method: "POST",
@@ -42,7 +52,7 @@ export const api = {
       },
       body: body === undefined ? undefined : JSON.stringify(body),
     }),
-  put: <T = any>(url: string, body?: unknown, init?: RequestInit) =>
+  put: <T = unknown>(url: string, body?: unknown, init?: RequestInit) =>
     requestJson<T>(url, {
       ...init,
       method: "PUT",
@@ -52,7 +62,7 @@ export const api = {
       },
       body: body === undefined ? undefined : JSON.stringify(body),
     }),
-  patch: <T = any>(url: string, body?: unknown, init?: RequestInit) =>
+  patch: <T = unknown>(url: string, body?: unknown, init?: RequestInit) =>
     requestJson<T>(url, {
       ...init,
       method: "PATCH",
@@ -62,5 +72,5 @@ export const api = {
       },
       body: body === undefined ? undefined : JSON.stringify(body),
     }),
-  delete: <T = any>(url: string, init?: RequestInit) => requestJson<T>(url, { ...init, method: "DELETE" }),
+  delete: <T = unknown>(url: string, init?: RequestInit) => requestJson<T>(url, { ...init, method: "DELETE" }),
 };

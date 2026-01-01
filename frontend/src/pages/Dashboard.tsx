@@ -11,7 +11,7 @@ export default function Dashboard() {
       alert("You must be logged in to access the dashboard.");
       navigate("/login");
     }
-  }, []);
+  }, [navigate]);
 
   return (
     <div style={{ padding: "2rem" }}>
