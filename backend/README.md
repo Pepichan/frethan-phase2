@@ -30,3 +30,18 @@ In another terminal:
 
 Note:
 - `postman:seed` generates `postman/frethan.local.generated.postman_environment.json` (ignored by git).
+
+## QA seed data (W6: Orders + Payments + Notifications)
+
+This repo includes a simple seed script to create a minimal data set for QA:
+
+- Buyer + Supplier + Admin users
+- RFQ → Quote → Order chain
+- One Payment linked to the Order
+- Notifications for Buyer and Supplier
+
+From `backend/`:
+
+- `npm run seed:qa:w6`
+
+The script prints a JSON blob of created IDs (you can redirect it to a file if needed).
