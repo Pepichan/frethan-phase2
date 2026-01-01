@@ -14,6 +14,7 @@ import Order from "./pages/Order";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import SupplierList from "./pages/SupplierList";
+import RFQ from "./pages/RFQ";
 
 // Placeholder pages
 import Compliance from "./pages/CompliancePage";
@@ -39,6 +40,8 @@ const App: React.FC = () => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/order" element={<Order />} />
+
+          <Route path="/rfq" element={<RFQ />} />
 
           {/* Protected dashboard */}
           <Route

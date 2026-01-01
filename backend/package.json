@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "prisma:generate": "prisma generate",
@@ -8,11 +8,16 @@
     "lint": "eslint . --ext .ts",
     "test": "jest",
     "test:watch": "jest --watchAll",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "postman:seed": "ts-node src/scripts/seedPostman.ts > postman/frethan.local.postman_environment.json",
+    "postman:newman": "newman run postman/rfq-quote.postman_collection.json -e postman/frethan.local.postman_environment.json"
 
   },
   "dependencies": {
     "supertest": "^7.1.1",
+    "newman": "^6.2.1",
+    "axios": "^1.12.2",
+    "jsonwebtoken": "^9.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
@@ -29,6 +34,7 @@
     "@typescript-eslint/eslint-plugin": "^8.48.0",
     "@typescript-eslint/parser": "^8.48.0",
     "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/supertest": "^2.0.16",
     "eslint": "^9.39.1",
     "globals": "^16.5.0",
