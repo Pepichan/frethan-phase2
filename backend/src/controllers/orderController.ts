@@ -107,10 +107,6 @@ const createOrderStatusNotifications = async (order: {
   }
 };
 
-type CreateOrderBody = {
-  quoteId: number;
-};
-
 const CreateOrderSchema = z.object({
   quoteId: z.preprocess(
     (v) => (typeof v === "string" || typeof v === "number" ? Number(v) : v),
