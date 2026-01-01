@@ -18,7 +18,7 @@
         "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"buyerId\": {{buyerId}},\n  \"currency\": \"AUD\",\n  \"notes\": \"Test RFQ\",\n  \"items\": [\n    {\n      \"description\": \"Steel rods\",\n      \"quantity\": 10,\n      \"unit\": \"pcs\"\n    }\n  ]\n}"
+          "raw": "{\n  \"buyerId\": \"{{buyerId}}\",\n  \"currency\": \"AUD\",\n  \"notes\": \"Test RFQ\",\n  \"items\": [\n    {\n      \"description\": \"Steel rods\",\n      \"quantity\": 10,\n      \"unit\": \"pcs\"\n    }\n  ]\n}"
         },
         "url": { "raw": "{{baseUrl}}/api/rfqs", "host": ["{{baseUrl}}"], "path": ["api", "rfqs"] }
       }
