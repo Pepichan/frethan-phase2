@@ -265,6 +265,7 @@ model Order {
   invoices      Invoice[]
   goodsReceipts GoodsReceipt[]
   shipments     Shipment[]
+  payments      Payment[]
   contractRef   ContractRef?
   notifications Notification[]
 
@@ -397,6 +398,7 @@ model InvoiceItem {
 model Payment {
   id         Int           @id @default(autoincrement())
   buyerId    Int
+  orderId    Int?
   amount     Decimal       @db.Decimal(14, 2)
   currency   String        @default("AUD")
   receivedAt DateTime
@@ -405,9 +407,11 @@ model Payment {
   status     PaymentStatus
 
   buyer       User                @relation("BuyerPayments", fields: [buyerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  order       Order?              @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   allocations PaymentAllocation[]
 
   @@index([buyerId, receivedAt])
+  @@index([orderId])
   @@index([status])
 }
 
