@@ -9,13 +9,15 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-import Dashboard from "./pages/Dashboard";
-import OrderDashboard from "./pages/OrderDashboard";
-import OrderDetail from "./pages/OrderDetail";
+import Order from "./pages/Order";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import SupplierList from "./pages/SupplierList";
-import RFQ from "./pages/RFQ";
+import CreateRFQ from "./pages/CreateRFQ";
+
+// Dashboards
+import BuyerDashboard from "./pages/dashboard/BuyerDashboard";
+import BusinessDashboard from "./pages/dashboard/BusinessDashboard";
 
 // Placeholder pages
 import Compliance from "./pages/CompliancePage";
@@ -37,6 +39,7 @@ const App: React.FC = () => {
 
       <main className="page-content">
         <Routes>
+          {/* Public pages */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
@@ -60,12 +63,39 @@ const App: React.FC = () => {
 
           <Route path="/rfq" element={<RFQ />} />
 
-          {/* Protected dashboard */}
+          {/* Auth */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+
+          {/* OAuth callback */}
+          <Route path="/oauth/callback" element={<OAuthHandler />} />
+
+          {/* Buyer Dashboard */}
           <Route
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <BuyerDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Business Dashboard */}
+          <Route
+            path="/dashboard/business"
+            element={
+              <ProtectedRoute>
+                <BusinessDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* CREATE RFQ (BUYER) */}
+          <Route
+            path="/rfq/create"
+            element={
+              <ProtectedRoute>
+                <CreateRFQ />
               </ProtectedRoute>
             }
           />
@@ -77,13 +107,6 @@ const App: React.FC = () => {
           <Route path="/compliance" element={<Compliance />} />
           <Route path="/shipment" element={<ShipmentPage />} />
           <Route path="/dispute" element={<DisputePage />} />
-
-          {/* Auth */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-
-          {/* OAuth callback */}
-          <Route path="/oauth/callback" element={<OAuthHandler />} />
 
           {/* 404 */}
           <Route path="*" element={<h2>Page Not Found</h2>} />
