@@ -9,15 +9,15 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-import Order from "./pages/Order";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import SupplierList from "./pages/SupplierList";
-import CreateRFQ from "./pages/CreateRFQ";
 
-// Dashboards
-import BuyerDashboard from "./pages/dashboard/BuyerDashboard";
-import BusinessDashboard from "./pages/dashboard/BusinessDashboard";
+import OrderDashboard from "./pages/OrderDashboard";
+import OrderDetail from "./pages/OrderDetail";
+import RFQ from "./pages/RFQ";
+
+import Dashboard from "./pages/Dashboard";
 
 // Placeholder pages
 import Compliance from "./pages/CompliancePage";
@@ -75,7 +75,7 @@ const App: React.FC = () => {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <BuyerDashboard />
+                <Dashboard />
               </ProtectedRoute>
             }
           />
@@ -85,7 +85,7 @@ const App: React.FC = () => {
             path="/dashboard/business"
             element={
               <ProtectedRoute>
-                <BusinessDashboard />
+                <Dashboard />
               </ProtectedRoute>
             }
           />
@@ -95,7 +95,7 @@ const App: React.FC = () => {
             path="/rfq/create"
             element={
               <ProtectedRoute>
-                <CreateRFQ />
+                <RFQ />
               </ProtectedRoute>
             }
           />
