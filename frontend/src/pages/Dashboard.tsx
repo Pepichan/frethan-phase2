@@ -1,22 +1,12 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 
 export default function Dashboard() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      alert("You must be logged in to access the dashboard.");
-      navigate("/login");
-    }
-  }, []);
+  const role = localStorage.getItem("role");
 
   return (
-    <div style={{ padding: "2rem" }}>
+    <div style={{ padding: "40px" }}>
       <h1>Dashboard</h1>
-      <p>Welcome to your secure dashboard.</p>
+      <p>Logged in as: <strong>{role}</strong></p>
     </div>
   );
 }
