@@ -7,13 +7,20 @@ const OAuthHandler: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
+    const error = params.get("error");
 
     if (token) {
       localStorage.setItem("token", token);
       navigate("/dashboard", { replace: true });
-    } else {
-      navigate("/login", { replace: true });
+      return;
     }
+
+    if (error) {
+      navigate(`/login?oauthError=${encodeURIComponent(error)}`, { replace: true });
+      return;
+    }
+
+    navigate("/login", { replace: true });
   }, [navigate]);
 
   return <p>Signing you in...</p>;

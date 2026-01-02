@@ -1,0 +1,157 @@
+{
+  "info": {
+    "name": "Frethan - RFQ & Quote",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/health", "host": ["{{baseUrl}}"], "path": ["api", "health"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('health ok', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create RFQ",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"buyerId\": \"{{buyerId}}\",\n  \"currency\": \"AUD\",\n  \"notes\": \"Test RFQ\",\n  \"items\": [\n    {\n      \"description\": \"Steel rods\",\n      \"quantity\": 10,\n      \"unit\": \"pcs\"\n    }\n  ]\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/rfqs", "host": ["{{baseUrl}}"], "path": ["api", "rfqs"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('create rfq', function () { pm.response.to.have.status(201); });",
+              "if (pm.response.code >= 200 && pm.response.code < 300) {",
+              "  var json = pm.response.json();",
+              "  if (json && json.rfq && json.rfq.id) { pm.environment.set('rfqId', String(json.rfq.id)); }",
+              "  if (json && json.rfq && json.rfq.items && json.rfq.items.length > 0 && json.rfq.items[0].id) { pm.environment.set('rfqItemId', String(json.rfq.items[0].id)); }",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List RFQs",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/rfqs", "host": ["{{baseUrl}}"], "path": ["api", "rfqs"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('list rfqs', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get RFQ Detail",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/rfqs/{{rfqId}}", "host": ["{{baseUrl}}"], "path": ["api", "rfqs", "{{rfqId}}"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('get rfq detail', function () { pm.response.to.have.status(200); });",
+              "if (pm.response.code >= 200 && pm.response.code < 300) {",
+              "  var json = pm.response.json();",
+              "  if (json && json.rfq && json.rfq.items && json.rfq.items.length > 0 && json.rfq.items[0].id) { pm.environment.set('rfqItemId', String(json.rfq.items[0].id)); }",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Submit RFQ (Open)",
+      "request": {
+        "method": "POST",
+        "url": { "raw": "{{baseUrl}}/api/rfqs/{{rfqId}}/submit", "host": ["{{baseUrl}}"], "path": ["api", "rfqs", "{{rfqId}}", "submit"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('submit rfq', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Submit Quote",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"rfqId\": \"{{rfqId}}\",\n  \"supplierId\": \"{{supplierId}}\",\n  \"currency\": \"AUD\",\n  \"items\": [\n    {\n      \"rfqItemId\": \"{{rfqItemId}}\",\n      \"unitPrice\": 12.5\n    }\n  ]\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/quotes", "host": ["{{baseUrl}}"], "path": ["api", "quotes"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('submit quote', function () { pm.response.to.have.status(201); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List Quotes For RFQ",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/quotes/rfq/{{rfqId}}", "host": ["{{baseUrl}}"], "path": ["api", "quotes", "rfq", "{{rfqId}}"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('list quotes', function () { pm.response.to.have.status(200); });",
+              "if (pm.response.code >= 200 && pm.response.code < 300) {",
+              "  var json = pm.response.json();",
+              "  pm.test('quotes is array', function () { pm.expect(Array.isArray(json.quotes)).to.equal(true); });",
+              "}"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
