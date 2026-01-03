@@ -1,0 +1,14 @@
+{
+  "name": "frethan-rfq-monorepo",
+  "private": true,
+  "workspaces": ["backend", "frontend"],
+  "scripts": {
+    "dev": "concurrently -n BACKEND,FRONTEND -c auto \"npm:dev --workspace backend\" \"npm:dev --workspace frontend\"",
+    "build": "cd frontend && npm install && npm run build",
+    "build:frontend": "cd frontend && npm install && npm run build",
+    "vercel-build": "bash -c 'cd frontend && npm install && npm run build'"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
