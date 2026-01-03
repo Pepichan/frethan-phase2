@@ -66,6 +66,10 @@ const isOAuthProvider = (value: string): value is OAuthProvider =>
 const FRONTEND_OAUTH_REDIRECT =
   process.env.FRONTEND_OAUTH_REDIRECT || "http://localhost:5173/oauth/callback";
 
+const WECHAT_DEMO_MODE =
+  String(process.env.WECHAT_DEMO_MODE || "").toLowerCase() === "true" ||
+  String(process.env.WECHAT_DEMO_MODE || "") === "1";
+
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const ensureJwtSecret = () => {
@@ -197,6 +201,150 @@ const linkOrCreateUserForSocial = async (args: {
   return user;
 };
 
+const linkOrCreateUserForWechatDemo = async () => {
+  const provider = "wechat";
+  const providerUserId = "demo-user";
+  const email = "wechat-demo@no-email.example";
+
+  const existingSocial = await prisma.userSocialAccount.findFirst({
+    where: { provider, providerUserId },
+  });
+  if (existingSocial) {
+    const user = await prisma.user.findUnique({ where: { id: existingSocial.userId } });
+    if (!user) {
+      throw new Error("Linked user not found");
+    }
+    return user;
+  }
+
+  const existingUserByEmail = await prisma.user.findUnique({
+    where: { userEmail: email },
+  });
+
+  if (existingUserByEmail) {
+    await prisma.userSocialAccount.create({
+      data: {
+        provider,
+        providerUserId,
+        email,
+        userId: existingUserByEmail.id,
+      },
+    });
+    return existingUserByEmail;
+  }
+
+  const roleId = await getRoleIdForOAuthUsers();
+
+  const user = await prisma.user.create({
+    data: {
+      roleId,
+      firstName: "Demo",
+      lastName: "WeChat",
+      userEmail: email,
+      status: "ACTIVE",
+      socialAccounts: {
+        create: {
+          provider,
+          providerUserId,
+          email,
+        },
+      },
+    },
+  });
+
+  return user;
+};
+
+export const wechatDemoLogin = async (_req: Request, res: Response) => {
+  try {
+    const state = newState("wechat");
+
+    console.info("auth.wechat.demo.login", {
+      result: "start",
+      state,
+    });
+
+    const callbackPath = `/api/auth/wechat/demo/callback?state=${encodeURIComponent(state)}`;
+
+    res
+      .status(200)
+      .type("html")
+      .send(`<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>WeChat Demo Login</title>
+    <style>
+      body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;margin:0;background:#0b1220;color:#e5e7eb}
+      .wrap{max-width:720px;margin:0 auto;padding:32px}
+      .card{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:24px}
+      .qr{display:flex;align-items:center;justify-content:center;width:240px;height:240px;margin:16px 0;background:#0f172a;border:1px dashed #334155;border-radius:12px;color:#94a3b8}
+      .muted{color:#9ca3af;font-size:14px}
+      .row{display:flex;gap:24px;flex-wrap:wrap}
+      a{color:#60a5fa}
+      code{background:#0f172a;padding:2px 6px;border-radius:6px}
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>WeChat Demo Login</h1>
+      <div class="card">
+        <div class="row">
+          <div>
+            <div class="qr">QR (demo)</div>
+            <div class="muted">This is a simulated QR-style flow. No real WeChat integration.</div>
+          </div>
+          <div style="flex:1;min-width:260px">
+            <p>Simulating scan + authorization…</p>
+            <p class="muted">State: <code>${state}</code></p>
+            <p class="muted">If you are not redirected automatically, click: <a href="${callbackPath}">Continue</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      setTimeout(function(){ window.location.assign(${JSON.stringify(callbackPath)}); }, 1400);
+    </script>
+  </body>
+</html>`);
+  } catch (error) {
+    console.error("auth.wechat.demo.login error:", error);
+    redirectToFrontend(res, { error: "wechat_demo_login_failed" });
+  }
+};
+
+export const wechatDemoCallback = async (req: Request, res: Response) => {
+  const state = typeof req.query.state === "string" ? req.query.state : undefined;
+
+  if (!state) {
+    console.info("auth.wechat.demo.callback", { result: "missing_state" });
+    redirectToFrontend(res, { error: "missing_state" });
+    return;
+  }
+
+  if (!consumeState("wechat", state)) {
+    console.info("auth.wechat.demo.callback", { result: "invalid_state" });
+    redirectToFrontend(res, { error: "invalid_state" });
+    return;
+  }
+
+  try {
+    const user = await linkOrCreateUserForWechatDemo();
+    const token = issueJwt(user.id);
+
+    console.info("auth.wechat.demo.callback", {
+      result: "success",
+      userId: user.id,
+    });
+
+    redirectToFrontend(res, { token });
+  } catch (error) {
+    console.error("auth.wechat.demo.callback error:", error);
+    redirectToFrontend(res, { error: "wechat_demo_callback_failed" });
+  }
+};
+
 export const oauthStart = (provider: OAuthProvider) => {
   return (req: Request, res: Response) => {
     if (!isOAuthProvider(provider)) {
@@ -205,6 +353,10 @@ export const oauthStart = (provider: OAuthProvider) => {
     }
 
     if (provider === "wechat") {
+      if (WECHAT_DEMO_MODE) {
+        res.redirect(302, "/api/auth/wechat/demo/login");
+        return;
+      }
       res.status(501).json({ status: "not_implemented", provider });
       return;
     }
