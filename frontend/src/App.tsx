@@ -19,6 +19,8 @@ import RFQ from "./pages/RFQ";
 
 import Dashboard from "./pages/Dashboard";
 
+import LinkedAccounts from "./pages/LinkedAccounts";
+
 // Placeholder pages
 import Compliance from "./pages/CompliancePage";
 import ShipmentPage from "./pages/ShipmentPage";
@@ -102,6 +104,16 @@ const App: React.FC = () => {
 
           {/* Supplier verification */}
           <Route path="/supplier-verification" element={<SupplierList />} />
+
+          {/* Settings */}
+          <Route
+            path="/settings/linked-accounts"
+            element={
+              <ProtectedRoute>
+                <LinkedAccounts />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Placeholder feature pages */}
           <Route path="/compliance" element={<Compliance />} />
