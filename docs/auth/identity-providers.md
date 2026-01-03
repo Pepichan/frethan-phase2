@@ -15,7 +15,12 @@ Frontend route (React):
 - `/oauth/callback` → reads `?token=...` or `?error=...` and routes accordingly
 
 WeChat:
-- `/api/auth/wechat` and `/api/auth/wechat/callback` exist as placeholders only.
+- Demo endpoints:
+   - `GET /api/auth/wechat` → **redirects to demo** when `WECHAT_DEMO_MODE=true`
+   - `GET /api/auth/wechat/demo/login` → returns a QR-style mock page and auto-redirects
+   - `GET /api/auth/wechat/demo/callback?state=...` → validates state, issues JWT, redirects to frontend
+- Live OAuth endpoints (reserved):
+   - `GET /api/auth/wechat` / `GET /api/auth/wechat/callback` exist, but **return 501** when demo mode is off.
 
 ## 2) Common Concepts
 
@@ -70,9 +75,23 @@ Current behavior:
 
 ## 5) WeChat (demo)
 
-WeChat OAuth setup differs (QR login is common). For W4 we treat it as a demo:
-- Frontend shows a "QR demo" label
-- Backend exposes the same placeholder endpoints: `/api/auth/wechat` and `/api/auth/wechat/callback`
+WeChat OAuth setup differs (QR login is common). For W6 we implement a **simulated demo flow**:
+
+### Feature flag
+- `WECHAT_DEMO_MODE=true` → `GET /api/auth/wechat` starts the demo flow.
+- `WECHAT_DEMO_MODE=false` → `/api/auth/wechat` returns `501 not_implemented` (live integration reserved).
+
+### Demo flow
+1. Frontend navigates to: `GET /api/auth/wechat`
+2. Backend redirects to: `GET /api/auth/wechat/demo/login`
+3. Demo login shows a QR-style page and simulates scanning + authorization
+4. Browser is redirected to: `GET /api/auth/wechat/demo/callback?state=...`
+5. Backend validates `state`, creates/links a **demo user**, issues JWT, and redirects to frontend:
+   - `FRONTEND_OAUTH_REDIRECT?token=...`
+
+Limitations:
+- No real WeChat API calls
+- No real user identity; a deterministic demo user is created/linked
 
 ## 6) Environment variables
 
@@ -93,6 +112,9 @@ Facebook:
 - `FACEBOOK_APP_SECRET`
 - `FACEBOOK_REDIRECT_URI=http://localhost:5000/api/auth/facebook/callback`
 - `FACEBOOK_SCOPES=email,public_profile`
+
+WeChat demo:
+- `WECHAT_DEMO_MODE=true`
 
 ## 7) Local Dev Quick Test
 
