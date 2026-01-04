@@ -149,6 +149,25 @@ const getEnv = (key: string) => {
 
 const getEnvOptional = (key: string) => process.env[key];
 
+const getMissingEnvKeyFromError = (error: unknown): string | null => {
+  const message = (() => {
+    if (typeof error === "string") return error;
+    if (error && typeof error === "object") {
+      const maybeMessage = (error as { message?: unknown }).message;
+      if (typeof maybeMessage === "string") return maybeMessage;
+    }
+    return null;
+  })();
+
+  if (!message) return null;
+
+  const prefix = "Missing env: ";
+  if (!message.startsWith(prefix)) return null;
+
+  const key = message.slice(prefix.length).trim();
+  return key ? key : null;
+};
+
 const getRoleIdForOAuthUsers = async () => {
   const role = await prisma.role.upsert({
     where: { name: "BUYER" },
@@ -424,6 +443,13 @@ export const oauthStart = (provider: OAuthProvider) => {
 
       res.redirect(302, url.toString());
     } catch (error) {
+      const missingKey = getMissingEnvKeyFromError(error);
+      if (missingKey) {
+        console.info("auth.oauth.start", { provider, result: "missing_env", key: missingKey });
+        redirectToFrontend(res, { error: `missing_env_${missingKey}` });
+        return;
+      }
+
       console.error("oauthStart error:", error);
       redirectToFrontend(res, { error: "oauth_start_failed" });
     }
@@ -664,8 +690,21 @@ export const oauthCallback = (provider: OAuthProvider) => {
       const token = issueJwt(user.id);
       redirectToFrontend(res, { token });
     } catch (error) {
+      const missingKey = getMissingEnvKeyFromError(error);
+      if (missingKey) {
+        console.info("auth.oauth.callback", { provider, result: "missing_env", key: missingKey });
+        const err = `missing_env_${missingKey}`;
+        if (stateRecord.flow === "link") {
+          redirectToLinkedAccounts(res, { provider, error: err });
+        } else {
+          redirectToFrontend(res, { error: err });
+        }
+        return;
+      }
+
       console.error("oauthCallback error:", error);
       console.info("auth.oauth.callback", { provider, result: "exception" });
+
       if (stateRecord.flow === "link") {
         redirectToLinkedAccounts(res, { provider, error: "oauth_link_failed" });
       } else {
@@ -743,8 +782,14 @@ export const oauthLinkStart = (provider: Exclude<OAuthProvider, "wechat">) => {
 
       res.redirect(302, url.toString());
     } catch (error) {
+      const missingKey = getMissingEnvKeyFromError(error);
+      if (missingKey) {
+        console.info("auth.oauth.link.start", { provider, result: "missing_env", key: missingKey });
+        redirectToLinkedAccounts(res, { provider, error: `missing_env_${missingKey}` });
+        return;
+      }
       console.error("oauthLinkStart error:", error);
-      res.status(503).json({ status: "error", message: "Provider unavailable" });
+      redirectToLinkedAccounts(res, { provider, error: "provider_unavailable" });
     }
   };
 };

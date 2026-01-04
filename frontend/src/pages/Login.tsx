@@ -20,6 +20,16 @@ const Login: React.FC = () => {
     }
   })();
 
+  const oauthErrorMessage = (() => {
+    if (!oauthError) return "";
+    const prefix = "missing_env_";
+    if (oauthError.startsWith(prefix)) {
+      const key = oauthError.slice(prefix.length);
+      return `Backend OAuth is not configured (missing ${key}). Set it in backend/.env then restart the backend.`;
+    }
+    return oauthError;
+  })();
+
   // ✅ NEW: handle Google OAuth token from URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -120,7 +130,7 @@ const Login: React.FC = () => {
           Sign in to access your procurement dashboard
         </p>
 
-        {oauthError && <div className="error-box">{oauthError}</div>}
+        {oauthErrorMessage && <div className="error-box">{oauthErrorMessage}</div>}
         {error && <div className="error-box">{error}</div>}
         {oauthStatus.status === "error" && (
           <div className="error-box">{oauthStatus.message}</div>
