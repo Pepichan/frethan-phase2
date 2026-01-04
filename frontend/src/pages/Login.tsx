@@ -5,6 +5,21 @@ import "../styles/Login.css";
 const Login: React.FC = () => {
   const navigate = useNavigate();
 
+  const oauthError = (() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const oauthErrorParam = params.get("oauthError");
+      if (typeof oauthErrorParam === "string" && oauthErrorParam.trim()) {
+        return oauthErrorParam;
+      }
+
+      const error = params.get("error");
+      return typeof error === "string" && error.trim() ? error : "";
+    } catch {
+      return "";
+    }
+  })();
+
   // ✅ NEW: handle Google OAuth token from URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
