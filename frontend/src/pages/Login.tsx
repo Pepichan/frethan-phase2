@@ -89,6 +89,17 @@ const Login: React.FC = () => {
     setOauthStatus({ status: "loading", provider });
 
     try {
+      // Preflight backend so we don't navigate to a blank page when the API is down.
+      const health = await fetch("/api/health").catch(() => null);
+      if (!health?.ok) {
+        setOauthStatus({
+          status: "error",
+          message:
+            "Backend is not reachable. Start the backend (http://localhost:5000) and Postgres, then try again.",
+        });
+        return;
+      }
+
       // Redirect-based OAuth flow: backend sends user to provider, then back to /oauth/callback.
       // Use Vite proxy by keeping the URL relative.
       window.location.assign(`/api/auth/${provider}`);
